@@ -70,13 +70,13 @@ LEDBoards_rotated = [
 ]
 
 Boards_col_count = 2
-Boards_row_count = 1
+Boards_row_count = 2
 Boards_count = Boards_col_count * Boards_row_count
 Boards_positions = [
-    # [2, 3],
-    # [1, 0],
-    # ------
+    [2, 3],
     [1, 0],
+    # ------
+    # [1, 0],
     # [0],
 ]
 
@@ -112,19 +112,18 @@ def mymap_LEDBoard_4x4_HD_CrystalLightGuide(self, *, col=0, row=0): #noqa
     board_offset = Boards_positions[board_row][board_col]
     # pixel_offset = LEDBoard_single[board_sub_row][board_sub_col]
 
-    pixel_offset = LEDBoards_rotated[board_row][board_col]
-
+    pixel_offset = LEDBoards_rotated[row][col]
+    print("{:>3} {:>3}: {:>3}".format(col, row, pixel_offset))
     pixel_index = (pixel_offset * Boards_count) + board_offset
-
-
 
     return pixel_index
 
-
+print("col row: index")
 pmap = PixelMap2D(
     row_count=Matrix_row_count,
     col_count=Matrix_col_count,
-    map_function=mymap_LEDBoard_4x4_HD
+    # map_function=mymap_LEDBoard_4x4_HD
+    map_function=mymap_LEDBoard_4x4_HD_CrystalLightGuide
 )
 
 ##########################################
@@ -204,6 +203,7 @@ palette = [
     fancyled.CRGB(0.5, 0.0, 0.5),  # Magenta
 ]
 
+
 ##########################################
 # helper function
 
@@ -262,7 +262,7 @@ class AnimationHelper(object):
         super(AnimationHelper, self).__init__()
         self.offset = 0
         self.animation_run = True
-        self.brightness = 0.1
+        self.brightness = 0.01
 
     ##########################################
     # test functions
