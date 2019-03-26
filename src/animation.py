@@ -290,15 +290,42 @@ def time_measurement_call(message, test_function, loop_count=1000):
 class AnimationHelper(object):
     """AnimationHelper."""
 
+    ##########################################
+    # properties
+
+    @property
+    def hue_base(self):
+        """Get hue_base value."""
+        return self._hue_base
+
+    @hue_base.setter
+    def hue_base(self, value):
+        """Set hue_base value."""
+        self._hue_base = value
+        self._hue_min = self._hue_base - self.hue_half_width
+        self._hue_max = self._hue_base + self.hue_half_width
+
+    ##########################################
+    # constructor
+
     def __init__(self):
         """Init."""
         super(AnimationHelper, self).__init__()
-        self.offset = 0
-        self.stepsize = 0.1
+        # internals
         self.animation_run = True
-        # self.brightness = 0.0005
+        self._animation_indicator = True
+        self._offset = 0
+        self._hue_base = 0.5
+        self._hue_min = 0
+        self._hue_max = 1
+
+        # values prepared for a smooth animation
+        self.hue_half_width = 0.15
+
+        # values that are good to change during animation
+        self.stepsize = 0.2
         self.brightness = 0.1
-        self.animation_indicator = True
+        self.hue_base = 0.2
 
     ##########################################
     # test functions
@@ -365,16 +392,16 @@ class AnimationHelper(object):
     def test_loop_2d_colors(self):
         """Test Function: Set all LEDs to 2D color-range."""
         # Positional offset for blue part
-        offsetN = map_range_int(self.offset, 0.0, 1.0, 1, 1000)
+        offsetN = map_range_int(self._offset, 0.0, 1.0, 1, 1000)
         for x in range(Matrix_col_count):
             xN = map_range_int(x, 0, Matrix_col_count, 1, 2000)
             for y in range(Matrix_row_count):
                 yN = map_range_int(y, 0, Matrix_row_count, 1, 2000)
                 pixels[pmap.map(col=x, row=y)] = (xN, yN, offsetN)
         pixels.show()
-        self.offset += 0.001  # Bigger number = faster spin
-        if self.offset > 1.0:
-            self.offset = 0
+        self._offset += 0.001  # Bigger number = faster spin
+        if self._offset > 1.0:
+            self._offset = 0
 
     def effect_rainbow_update(self):
         """Rainbow."""
@@ -382,14 +409,14 @@ class AnimationHelper(object):
             # Load each pixel's color from the palette using an offset
             # color = fancyled.palette_lookup(
             #     palette,
-            #     self.offset + row_index / Matrix_row_count
+            #     self._offset + row_index / Matrix_row_count
             #
             # )
 
             # results in 84,47ms
             # but has not as nice colors...
             # color_r, color_g, color_b = fancyled.CRGB(fancyled.CHSV(
-            #     self.offset +
+            #     self._offset +
             #     # (row_index / Matrix_row_count),
             #     map_range(
             #         row_index,
@@ -401,7 +428,7 @@ class AnimationHelper(object):
 
             # results in 99.41ms
             color = fancyled.CHSV(
-                self.offset +
+                self._offset +
                 # (row_index / Matrix_row_count),
                 # map_range(
                 #     row_index,
@@ -437,9 +464,9 @@ class AnimationHelper(object):
                 # )
         pixels.show()
 
-        self.offset += 0.01  # Bigger number = faster spin
-        if self.offset >= 10:
-            self.offset -= 10
+        self._offset += 0.01  # Bigger number = faster spin
+        if self._offset >= 10:
+            self._offset -= 10
 
     def effect_plasma_update(self):
         """Rainbow."""
@@ -465,34 +492,43 @@ class AnimationHelper(object):
 
                 # "{:>+.2f}".format(0.1234)
                 # hue = (
-                #     self.offset +
+                #     self._offset +
                 #     # (row_index / Matrix_row_count),
                 #     row
                 # )
 
-                # hue = self.offset
-                hue = 0.5
+                # hue = self._offset
+                # hue = 0.5
                 # hue = row
+
                 # stripes
-                # value = math.sin(col*10 + self.offset)
+                # value = math.sin(col*10 + self._offset)
+
                 # moving rings
-                cx = col + 0.5 * math.sin(self.offset / 5)
-                cy = row + 0.5 * math.cos(self.offset / 3)
+                cx = col + 0.5 * math.sin(self._offset / 5)
+                cy = row + 0.5 * math.cos(self._offset / 3)
                 value = math.sin(
                     math.sqrt(100 * (cx*cx + cy*cy) + 1)
-                    + self.offset
+                    + self._offset
                 )
                 # print(value)
-                value = map_range(
+                brightness = map_range(
                     value,
                     -1, 1,
-                    0, 1.0
+                    0.1, 1.0
                 )
+
+                hue = map_range(
+                    value,
+                    -1, 1,
+                    self._hue_min, self._hue_max
+                )
+
                 # map to color
                 color = fancyled.CHSV(
                     hue,
                     # v=0.05
-                    v=value
+                    v=brightness
                 )
                 color_r, color_g, color_b = fancyled.gamma_adjust(
                     color,
@@ -513,15 +549,15 @@ class AnimationHelper(object):
                 #     0, 0, value_int
                 # )
         # toggle pixel 0,0 as animation running indicator
-        # value = self.animation_indicator * 5000
+        # value = self._animation_indicator * 5000
         # pixels.set_pixel_16bit_value(pmap.map_raw[0][0], value, value, value)
-        # self.animation_indicator = not self.animation_indicator
+        # self._animation_indicator = not self._animation_indicator
 
         # higher number = faster changes
-        # self.offset += 0.01
-        self.offset += self.stepsize
-        if self.offset > (math.pi * 30):
-            self.offset = 0
+        # self._offset += 0.01
+        self._offset += self.stepsize
+        if self._offset > (math.pi * 30):
+            self._offset = 0
             # pixels.set_pixel_16bit_value(pmap.map_raw[0][0], 0, 10000, 0)
 
         # write data to chips
@@ -634,7 +670,7 @@ class AnimationHelper(object):
 
     def check_input(self):
         """Check Input."""
-        print("self.offset", self.offset, self.offset / math.pi)
+        print("self._offset", self._offset, self._offset / math.pi)
         input_string = input()
         if "s" in input_string:
             self.handle_pixel_set_all(input_string)
