@@ -168,16 +168,10 @@ pixels = slight_tlc5957.TLC5957(
 
 
 ##########################################
-# setup chip configuration
-pixels.set_fc_CC_all(0x1FF, 0x1FF, 0x0FF)
-pixels.set_fc_BC_all(0x4)
-pixels.set_fc_ESPWM_all(enable=True)
-pixels.print_buffer_fc()
-pixels.update_fc()
+# chip config
 
-
-def pixels_init_BCData():
-    """Initialise global brightness control data."""
+def setup_chip_configuration():
+    """Configure chips."""
     # BCValues = TLC59711Multi.calculate_BCData(
     #     Ioclmax=18,
     #     IoutR=18,
@@ -190,7 +184,11 @@ def pixels_init_BCData():
     # pixels.bcb = BCValues[2]
     # pixels.update_BCData()
     # pixels.show()
-    pass
+    pixels.set_fc_CC_all(0x1FF, 0x1FF, 0x0FF)
+    pixels.set_fc_BC_all(0x4)
+    pixels.set_fc_ESPWM_all(enable=True)
+    pixels.print_buffer_fc()
+    pixels.update_fc()
 
 
 ##########################################
@@ -305,6 +303,20 @@ class AnimationHelper(object):
         self._hue_min = self._hue_base - self.hue_half_width
         self._hue_max = self._hue_base + self.hue_half_width
 
+    @property
+    def animation_contrast(self):
+        """Get animation_contrast value."""
+        return self._contrast
+
+    @animation_contrast.setter
+    def animation_contrast(self, value):
+        """Set animation_contrast value."""
+        self._contrast = value
+        # self._contrast_min = self._contrast - 0.5
+        # self._contrast_max = self._contrast + 0.5
+        self._contrast_min = 1 - self._contrast
+        self._contrast_max = 1
+
     ##########################################
     # constructor
 
@@ -315,17 +327,22 @@ class AnimationHelper(object):
         self.animation_run = True
         self._animation_indicator = True
         self._offset = 0
+        # internal properties
         self._hue_base = 0.5
         self._hue_min = 0
         self._hue_max = 1
+        self._contrast = 1
+        self._contrast_min = 0
+        self._contrast_max = 1
 
         # values prepared for a smooth animation
-        self.hue_half_width = 0.15
+        self.hue_half_width = 0.05
 
         # values that are good to change during animation
         self.stepsize = 0.2
         self.brightness = 0.1
-        self.hue_base = 0.2
+        self.hue_base = 0.05
+        self.animation_contrast = 0.99
 
     ##########################################
     # test functions
@@ -403,6 +420,9 @@ class AnimationHelper(object):
         if self._offset > 1.0:
             self._offset = 0
 
+    ##########################################
+    # animations
+
     def effect_rainbow_update(self):
         """Rainbow."""
         for col_index in range(Matrix_col_count):
@@ -469,7 +489,65 @@ class AnimationHelper(object):
             self._offset -= 10
 
     def effect_plasma_update(self):
-        """Rainbow."""
+        """Plasma."""
+        for col_index in range(Matrix_col_count):
+            for row_index in range(Matrix_row_count):
+                # calculate plasma
+                # mostly inspired by
+                # https://www.bidouille.org/prog/plasma
+                col = map_range(
+                    col_index,
+                    0, Matrix_col_count-1,
+                    # 0, 1.0
+                    -0.5, 0.5
+                )
+                row = map_range(
+                    row_index,
+                    0, Matrix_row_count-1,
+                    # 0, 1.0
+                    -0.5, 0.5
+                )
+
+                # moving rings
+                cx = col + 0.5 * math.sin(self._offset / 5)
+                cy = row + 0.5 * math.cos(self._offset / 3)
+                value = math.sin(
+                    math.sqrt(100 * (cx*cx + cy*cy) + 1)
+                    + self._offset
+                )
+                # mapping
+                contrast = map_range(
+                    value,
+                    -1, 1,
+                    self._contrast_min, self._contrast_max
+                )
+                hue = map_range(
+                    value,
+                    -1, 1,
+                    self._hue_min, self._hue_max
+                )
+                # map to color
+                color = fancyled.CHSV(
+                    hue,
+                    v=contrast
+                )
+                # handle gamma and global brightness
+                color_r, color_g, color_b = fancyled.gamma_adjust(
+                    color,
+                    brightness=self.brightness)
+                pixels.set_pixel_float_value(
+                    pmap.map_raw[row_index][col_index],
+                    color_r, color_g, color_b
+                )
+        # update animation offset
+        self._offset += self.stepsize
+        if self._offset > (math.pi * 30):
+            self._offset = 0
+        # write data to chips
+        pixels.show()
+
+    def effect_debug_update(self):
+        """Implement and Test various things."""
         # print("col   |   row")
         for col_index in range(Matrix_col_count):
             for row_index in range(Matrix_row_count):
@@ -489,17 +567,7 @@ class AnimationHelper(object):
                     -0.5, 0.5
                 )
                 # print("{:>+.2f} | {:>+.2f}".format(col, row))
-
                 # "{:>+.2f}".format(0.1234)
-                # hue = (
-                #     self._offset +
-                #     # (row_index / Matrix_row_count),
-                #     row
-                # )
-
-                # hue = self._offset
-                # hue = 0.5
-                # hue = row
 
                 # stripes
                 # value = math.sin(col*10 + self._offset)
@@ -530,10 +598,10 @@ class AnimationHelper(object):
                     # v=0.05
                     v=brightness
                 )
+                # handle gamma and global brightness
                 color_r, color_g, color_b = fancyled.gamma_adjust(
                     color,
                     brightness=self.brightness)
-
                 pixels.set_pixel_float_value(
                     pmap.map_raw[row_index][col_index],
                     color_r, color_g, color_b
@@ -558,10 +626,13 @@ class AnimationHelper(object):
         self._offset += self.stepsize
         if self._offset > (math.pi * 30):
             self._offset = 0
-            # pixels.set_pixel_16bit_value(pmap.map_raw[0][0], 0, 10000, 0)
+            pixels.set_pixel_16bit_value(pmap.map_raw[0][0], 0, 10000, 0)
 
         # write data to chips
         pixels.show()
+
+    ##########################################
+    # menu
 
     @staticmethod
     def handle_pixel_set(input_string):
@@ -640,7 +711,7 @@ class AnimationHelper(object):
         self.brightness = value
 
     def handle_stepsize(self, input_string):
-        """Handle brightness set."""
+        """Handle stepsize set."""
         value = 0.1
         try:
             value = float(input_string[1:])
@@ -648,31 +719,57 @@ class AnimationHelper(object):
             print("Exception parsing 'value': ", e)
         self.stepsize = value
 
+    def handle_hue_base(self, input_string):
+        """Handle hue_base set."""
+        value = 0.5
+        try:
+            value = float(input_string[1:])
+        except ValueError as e:
+            print("Exception parsing 'value': ", e)
+        self.hue_base = value
+
+    def hanimation_contrast(self, input_string):
+        """Handle hue_base set."""
+        value = 0.5
+        try:
+            value = float(input_string[1:])
+        except ValueError as e:
+            print("Exception parsing 'value': ", e)
+        self.animation_contrast = value
+
     @staticmethod
     def handle_set_off():
         """Handle Clear."""
         pixels.set_all_black()
         pixels.show()
 
-    @staticmethod
-    def print_help():
+    def print_help(self):
         """Print Help."""
         print(
             "you can set some options:\n"
-            "- all pixels: 's500'\n"
+            "- all pixels: 'S500'\n"
             "- a single pixel by index: 'p18:500'\n"
             "- a single pixel by col row: 'm2,5:500'\n"
-            "- toggle animation: 'a'\n"
-            "- set brightness: 'b0.1'\n"
-            "- set stepsize: 'S0.1'\n"
+            "- toggle animation: 'a' ({animation_run})\n"
+            "- set brightness: 'b0.1' ({brightness})\n"
+            "- set stepsize: 's0.1' ({stepsize})\n"
+            "- set hue_base: 'h0.5' ({hue_base})\n"
+            "- set animation_contrast: 'c0.5' ({animation_contrast})\n"
             "- set all off: 'off'\n"
+            "".format(
+                animation_run=self.animation_run,
+                brightness=self.brightness,
+                stepsize=self.stepsize,
+                hue_base=self.hue_base,
+                animation_contrast=self.animation_contrast,
+            )
         )
 
     def check_input(self):
         """Check Input."""
         print("self._offset", self._offset, self._offset / math.pi)
         input_string = input()
-        if "s" in input_string:
+        if "S" in input_string:
             self.handle_pixel_set_all(input_string)
         if "p" in input_string:
             self.handle_pixel_set(input_string)
@@ -682,14 +779,21 @@ class AnimationHelper(object):
             self.animation_run = not self.animation_run
         if "b" in input_string:
             self.handle_brightness(input_string)
-        if "S" in input_string:
+        if "s" in input_string:
             self.handle_stepsize(input_string)
+        if "h" in input_string:
+            self.handle_hue_base(input_string)
+        if "c" in input_string:
+            self.hanimation_contrast(input_string)
         if "off" in input_string:
             self.handle_set_off()
         # prepare new input
         # print("enter new values:")
         self.print_help()
         print(">> ", end="")
+
+    ##########################################
+    # test & debug
 
     def time_meassurements(self):
         """Test Main."""
@@ -706,6 +810,9 @@ class AnimationHelper(object):
             _test,
             loop_count
         )
+
+    ##########################################
+    # main loop
 
     def main_loop(self):
         """Loop."""
@@ -725,7 +832,7 @@ class AnimationHelper(object):
         # pixels.set_pixel_all_16bit_value(100, 100, 100)
         # pixels.show()
         # wait_with_print(1)
-        # pixels_init_BCData()
+        # setup_chip_configuration()
         pixels.show()
         # wait_with_print(20)
 
@@ -755,6 +862,7 @@ class AnimationHelper(object):
             self.main_loop()
 
 
+setup_chip_configuration()
 animation_helper = AnimationHelper()
 
 ##########################################
