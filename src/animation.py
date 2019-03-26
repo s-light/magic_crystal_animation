@@ -9,6 +9,7 @@ Enjoy the colors :-)
 """
 
 import time
+import math
 
 import board
 import busio
@@ -208,12 +209,44 @@ palette = [
 # helper function
 
 def map_range(x, in_min, in_max, out_min, out_max):
-    """Map Value from one range to another."""
+    """Map value from one range to another."""
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 
+def map_range_constrained(x, in_min, in_max, out_min, out_max):
+    """Map value from one range to another - constrain input range."""
+    if x < in_min:
+        x = in_min
+    elif x > in_max:
+        x = in_max
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+
+def normalize_to_01(x, in_min, in_max):
+    """Map value to 0..1 range."""
+    return (x - in_min) / (in_max - in_min)
+
+
+def normalize_to_11(x, in_min, in_max):
+    """Map value to -1..1 range."""
+    return (x - in_min) * 2 / (in_max - in_min) + -1
+
+
 def map_range_int(x, in_min, in_max, out_min, out_max):
-    """Map Value from one range to another."""
+    """Map value from one range to another."""
+    return int(
+        (x - in_min) * (out_max - out_min)
+        //
+        (in_max - in_min) + out_min
+    )
+
+
+def map_range_constrained_int(x, in_min, in_max, out_min, out_max):
+    """Map value from one range to another - constrain input range."""
+    if x < in_min:
+        x = in_min
+    elif x > in_max:
+        x = in_max
     return int(
         (x - in_min) * (out_max - out_min)
         //
@@ -261,8 +294,11 @@ class AnimationHelper(object):
         """Init."""
         super(AnimationHelper, self).__init__()
         self.offset = 0
+        self.stepsize = 0.1
         self.animation_run = True
-        self.brightness = 0.01
+        # self.brightness = 0.0005
+        self.brightness = 0.1
+        self.animation_indicator = True
 
     ##########################################
     # test functions
@@ -340,7 +376,7 @@ class AnimationHelper(object):
         if self.offset > 1.0:
             self.offset = 0
 
-    def rainbow_update(self):
+    def effect_rainbow_update(self):
         """Rainbow."""
         for col_index in range(Matrix_col_count):
             # Load each pixel's color from the palette using an offset
@@ -404,6 +440,92 @@ class AnimationHelper(object):
         self.offset += 0.01  # Bigger number = faster spin
         if self.offset >= 10:
             self.offset -= 10
+
+    def effect_plasma_update(self):
+        """Rainbow."""
+        # print("col   |   row")
+        for col_index in range(Matrix_col_count):
+            for row_index in range(Matrix_row_count):
+                # calculate plasma
+                # mostly inspired by
+                # https://www.bidouille.org/prog/plasma
+                col = map_range(
+                    col_index,
+                    0, Matrix_col_count-1,
+                    # 0, 1.0
+                    -0.5, 0.5
+                )
+                row = map_range(
+                    row_index,
+                    0, Matrix_row_count-1,
+                    # 0, 1.0
+                    -0.5, 0.5
+                )
+                # print("{:>+.2f} | {:>+.2f}".format(col, row))
+
+                # "{:>+.2f}".format(0.1234)
+                # hue = (
+                #     self.offset +
+                #     # (row_index / Matrix_row_count),
+                #     row
+                # )
+
+                # hue = self.offset
+                hue = 0.5
+                # hue = row
+                # stripes
+                # value = math.sin(col*10 + self.offset)
+                # moving rings
+                cx = col + 0.5 * math.sin(self.offset / 5)
+                cy = row + 0.5 * math.cos(self.offset / 3)
+                value = math.sin(
+                    math.sqrt(100 * (cx*cx + cy*cy) + 1)
+                    + self.offset
+                )
+                # print(value)
+                value = map_range(
+                    value,
+                    -1, 1,
+                    0, 1.0
+                )
+                # map to color
+                color = fancyled.CHSV(
+                    hue,
+                    # v=0.05
+                    v=value
+                )
+                color_r, color_g, color_b = fancyled.gamma_adjust(
+                    color,
+                    brightness=self.brightness)
+
+                pixels.set_pixel_float_value(
+                    pmap.map_raw[row_index][col_index],
+                    color_r, color_g, color_b
+                )
+                # for testing
+                # value_int = map_range_constrained_int(
+                #     value,
+                #     0.2, 1,
+                #     0, 1000
+                # )
+                # pixels.set_pixel_16bit_value(
+                #     pmap.map_raw[row_index][col_index],
+                #     0, 0, value_int
+                # )
+        # toggle pixel 0,0 as animation running indicator
+        # value = self.animation_indicator * 5000
+        # pixels.set_pixel_16bit_value(pmap.map_raw[0][0], value, value, value)
+        # self.animation_indicator = not self.animation_indicator
+
+        # higher number = faster changes
+        # self.offset += 0.01
+        self.offset += self.stepsize
+        if self.offset > (math.pi * 30):
+            self.offset = 0
+            # pixels.set_pixel_16bit_value(pmap.map_raw[0][0], 0, 10000, 0)
+
+        # write data to chips
+        pixels.show()
 
     @staticmethod
     def handle_pixel_set(input_string):
@@ -481,6 +603,15 @@ class AnimationHelper(object):
             print("Exception parsing 'value': ", e)
         self.brightness = value
 
+    def handle_stepsize(self, input_string):
+        """Handle brightness set."""
+        value = 0.1
+        try:
+            value = float(input_string[1:])
+        except ValueError as e:
+            print("Exception parsing 'value': ", e)
+        self.stepsize = value
+
     @staticmethod
     def handle_set_off():
         """Handle Clear."""
@@ -497,11 +628,13 @@ class AnimationHelper(object):
             "- a single pixel by col row: 'm2,5:500'\n"
             "- toggle animation: 'a'\n"
             "- set brightness: 'b0.1'\n"
+            "- set stepsize: 'S0.1'\n"
             "- set all off: 'off'\n"
         )
 
     def check_input(self):
         """Check Input."""
+        print("self.offset", self.offset, self.offset / math.pi)
         input_string = input()
         if "s" in input_string:
             self.handle_pixel_set_all(input_string)
@@ -513,6 +646,8 @@ class AnimationHelper(object):
             self.animation_run = not self.animation_run
         if "b" in input_string:
             self.handle_brightness(input_string)
+        if "S" in input_string:
+            self.handle_stepsize(input_string)
         if "off" in input_string:
             self.handle_set_off()
         # prepare new input
@@ -529,9 +664,9 @@ class AnimationHelper(object):
         loop_count = 20
 
         def _test():
-            self.rainbow_update()
+            self.effect_rainbow_update()
         time_measurement_call(
-            "'self.rainbow_update()'",
+            "'self.effect_rainbow_update()'",
             _test,
             loop_count
         )
@@ -542,7 +677,8 @@ class AnimationHelper(object):
             self.check_input()
         if self.animation_run:
             # self.test_loop_2d_colors()
-            self.rainbow_update()
+            # self.effect_rainbow_update()
+            self.effect_plasma_update()
 
     def run_test(self):
         """Test Main."""
