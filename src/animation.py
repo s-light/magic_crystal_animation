@@ -148,7 +148,9 @@ spi = bitbangio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
 # gsclk_freqency = (1 * 1000 * 1000)  # 1MHz
 # gsclk_freqency = (6 * 1000 * 1000)  # 6MHz
 gsclk_freqency = (10 * 1000 * 1000)  # 10MHz
+# gsclk_freqency = (20 * 1000 * 1000)  # 30MHz
 # gsclk_freqency = (30 * 1000 * 1000)  # 30MHz
+print("gsclk_frequency: {:}MHz".format(gsclk_freqency / (1000*1000)))
 gsclk = pulseio.PWMOut(
     board.D9, duty_cycle=(2 ** 15), frequency=gsclk_freqency)
 print("gsclk.frequency: {:}MHz".format(gsclk.frequency / (1000*1000)))
@@ -340,7 +342,7 @@ class AnimationHelper(object):
 
         # values that are good to change during animation
         self.stepsize = 0.2
-        self.brightness = 0.1
+        self.brightness = 0.01
         self.hue_base = 0.05
         self.animation_contrast = 0.99
 
