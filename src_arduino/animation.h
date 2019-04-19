@@ -8,6 +8,13 @@
     Enjoy the colors :-)
     """
 
+    libraries used:
+        ~ slight_DebugMenu
+        ~ slight_TLC5957
+            written by stefan krueger (s-light),
+                github@s-light.eu, http://s-light.eu, https://github.com/s-light/
+            license: MIT
+
     written by stefan krueger (s-light),
         github@s-light.eu, http://s-light.eu, https://github.com/s-light/
 
@@ -44,15 +51,19 @@ SOFTWARE.
 // include Core Arduino functionality
 #include <Arduino.h>
 
+#include <slight_DebugMenu.h>
+
+#include <SPI.h>
+#include <slight_TLC5957.h>
 
 class MC_Animation {
 public:
 
-    // ##########################################
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes
 
-    // ##########################################
-    // mappings
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // pixel map
     // LEDBoard_4x4_16bit mapping
 
     static const uint16_t LEDBOARD_COL_COUNT = 4;
@@ -63,119 +74,103 @@ public:
     // Layouts for LEDBoard_4x4_HD
     // https://github.com/s-light/LEDBoard_4x4_HD
 
-    // Horizontal
-    // const uint8_t LEDBOARD_SINGLE
-    //         [LEDBOARD_ROW_COUNT][LEDBOARD_COL_COUNT] = {
-    //     {15, 14, 13, 12},
-    //     {11, 10, 9, 8},
-    //     {7, 6, 5, 4},
-    //     {3, 2, 1, 0},
-    // }
-
-    // Vertical
-    static constexpr uint8_t LEDBOARD_SINGLE
-            [LEDBOARD_ROW_COUNT][LEDBOARD_COL_COUNT] = {
-        {3, 7, 11, 15},
-        {2, 6, 10, 14},
-        {1, 5, 9, 13},
-        {0, 4, 8, 12},
-    };
+    static const uint8_t LEDBOARD_SINGLE
+        [LEDBOARD_ROW_COUNT][LEDBOARD_COL_COUNT];
 
 
     static const uint8_t BOARDS_COL_COUNT = 2;
-    static const uint8_t BOARDS_ROW_COUNT = 2;
+    static const uint8_t BOARDS_ROW_COUNT = 1;
     static const uint8_t BOARDS_COUNT = BOARDS_COL_COUNT * BOARDS_ROW_COUNT;
-    static constexpr uint8_t BOARDS_POSITIONS
-            [BOARDS_ROW_COUNT][BOARDS_COL_COUNT] = {
-        {2, 3},
-        {1, 0},
-        // ------
-        // {1, 0},
-        // {0},
-    };
+    static const uint8_t BOARDS_POSITIONS
+        [BOARDS_ROW_COUNT][BOARDS_COL_COUNT];
 
     static const uint8_t MATRIX_COL_COUNT = LEDBOARD_COL_COUNT * BOARDS_COL_COUNT;
     static const uint8_t MATRIX_ROW_COUNT = LEDBOARD_ROW_COUNT * BOARDS_ROW_COUNT;
     static const uint8_t MATRIX_PIXEL_COUNT = MATRIX_COL_COUNT * MATRIX_ROW_COUNT;
 
-    static constexpr uint8_t LEDBOARDS_ROTATED
-            [MATRIX_ROW_COUNT][MATRIX_COL_COUNT] = {
-        {15, 14, 13, 12,    3,  7, 11, 15},
-        {11, 10,  9,  8,    2,  6, 10, 14},
-        { 7,  6,  5,  4,    1,  5,  9, 13},
-        { 3,  2,  1,  0,    0,  4,  8, 12},
+    static const uint8_t LEDBOARDS_ROTATED
+        [MATRIX_ROW_COUNT][MATRIX_COL_COUNT];
 
-        {12,  8,  4,  0,    0,  1,  2,  3},
-        {13,  9,  5,  1,    4,  5,  6,  7},
-        {14, 10,  6,  2,    8,  9, 10, 11},
-        {15, 11,  7,  3,   12, 13, 14, 15},
-    };
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TLC5957
 
-
-    // ##########################################
-    // public types
-
-    // enum function_command_pulse_count {
-    //     _FC__WRTGS = 1,
-    //     _FC__LATGS = 3,
-    //     _FC__WRTFC = 5,
-    //     _FC__LINERESET = 7,
-    //     _FC__READFC = 11,
-    //     _FC__TMGRST = 13,
-    //     _FC__FCWRTEN = 15
-    // };
-    //
-    // const uint8_t _FC_BIT_COUNT = CHIP_BUFFER_BIT_COUNT;
-    //
-    // struct function_control_t {
-    //   const uint8_t offset;
-    //   const uint8_t length;
-    //   const uint16_t mask;
-    //   const uint16_t defaultv;
-    // };
-    //
-    // static constexpr function_control_t _FC_FIELDS_EMPTY = {
-    //     .offset = 0,
-    //     .length = 0,
-    //     .mask = 0,
-    //     .defaultv = 0,
-    // };
+    // possible options and defaults:
+    // slight_TLC5957(
+    //     uint8_t chip_count,
+    //     uint8_t lat_pin = 7,
+    //     uint8_t gclk_pin = 9,
+    //     uint8_t sclk_pin = SCK,
+    //     uint8_t sout_pin = MOSI,
+    //     uint8_t sin_pin = MISO
+    // );
+    // use default pins
+    slight_TLC5957 tlc = slight_TLC5957(MATRIX_PIXEL_COUNT);
 
 
-    // ##########################################
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // constructor
 
     MC_Animation();
     ~MC_Animation();
 
-    // ##########################################
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // public functions
 
     // basic library api
-    void begin();
+    void begin(Stream &out);
     void update();
     void end();
 
+    // menu & helper
+    void menu__set_pixel(Print &out, char *command);
+    void menu__test_buffer(Print &out);
+    void print_tlc_buffer(Print &out);
 
-    // ##########################################
+    float gsclock_set_frequency_MHz(float frequency_MHz);
+    float gsclock_get_frequency_MHz();
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // configurations
 
     uint8_t pmap[MATRIX_ROW_COUNT][MATRIX_COL_COUNT];
 
+    bool animation_run = true;
+
+    //uint16_t animation_interval = 1000; //ms
+    uint16_t animation_interval = 5; //ms
+
+    uint8_t step = 0;
+
 private:
 
-    // ##########################################
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // private functions
 
+    // animation
+    void animate__pixel_checker();
+    void animate__line();
+
+    // others
     void pmap_init();
 
     uint8_t mymap_LEDBoard_4x4_HD(uint8_t col, uint8_t row);
     uint8_t mymap_LEDBoard_4x4_HD_CrystalLightGuide(uint8_t col, uint8_t row);
 
-    // ##########################################
+    void tlc_init(Stream &out);
+
+    void animation_init(Stream &out);
+    void animation_update();
+
+    void gsclock_init(Print &out);
+    void setup_D9_10MHz();
+    void set_D9_period_reg(uint8_t period_reg);
+    uint8_t get_D9_period_reg();
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes
     bool ready;
-
+    unsigned long animation_timestamp = 0;
 
 };  // class MC_Animation
 
