@@ -48,23 +48,24 @@ SOFTWARE.
 class MC_Animation {
 public:
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // attributes
 
     // ##########################################
     // mappings
     // LEDBoard_4x4_16bit mapping
 
-    static const uint16_t LEDBoard_col_count = 4;
-    static const uint16_t LEDBoard_row_count = 4;
-    static const uint16_t LEDBoard_pixel_count = (
-        LEDBoard_row_count * LEDBoard_col_count);
+    static const uint16_t LEDBOARD_COL_COUNT = 4;
+    static const uint16_t LEDBOARD_ROW_COUNT = 4;
+    static const uint16_t LEDBOARD_PIXEL_COUNT = (
+        LEDBOARD_ROW_COUNT * LEDBOARD_COL_COUNT);
 
     // Layouts for LEDBoard_4x4_HD
     // https://github.com/s-light/LEDBoard_4x4_HD
 
     // Horizontal
-    // const uint8_t LEDBoard_single[LEDBoard_row_count][LEDBoard_col_count] = {
+    // const uint8_t LEDBOARD_SINGLE
+    //         [LEDBOARD_ROW_COUNT][LEDBOARD_COL_COUNT] = {
     //     {15, 14, 13, 12},
     //     {11, 10, 9, 8},
     //     {7, 6, 5, 4},
@@ -72,7 +73,8 @@ public:
     // }
 
     // Vertical
-    static constexpr uint8_t LEDBoard_single[LEDBoard_row_count][LEDBoard_col_count] = {
+    static constexpr uint8_t LEDBOARD_SINGLE
+            [LEDBOARD_ROW_COUNT][LEDBOARD_COL_COUNT] = {
         {3, 7, 11, 15},
         {2, 6, 10, 14},
         {1, 5, 9, 13},
@@ -80,10 +82,11 @@ public:
     };
 
 
-    static const uint8_t Boards_col_count = 2;
-    static const uint8_t Boards_row_count = 2;
-    static const uint8_t Boards_count = Boards_col_count * Boards_row_count;
-    static constexpr uint8_t Boards_positions[Boards_row_count][Boards_col_count] = {
+    static const uint8_t BOARDS_COL_COUNT = 2;
+    static const uint8_t BOARDS_ROW_COUNT = 2;
+    static const uint8_t BOARDS_COUNT = BOARDS_COL_COUNT * BOARDS_ROW_COUNT;
+    static constexpr uint8_t BOARDS_POSITIONS
+            [BOARDS_ROW_COUNT][BOARDS_COL_COUNT] = {
         {2, 3},
         {1, 0},
         // ------
@@ -91,11 +94,12 @@ public:
         // {0},
     };
 
-    static const uint8_t Matrix_col_count = LEDBoard_col_count * Boards_col_count;
-    static const uint8_t Matrix_row_count = LEDBoard_row_count * Boards_row_count;
-    static const uint8_t Matrix_pixel_count = Matrix_col_count * Matrix_row_count;
+    static const uint8_t MATRIX_COL_COUNT = LEDBOARD_COL_COUNT * BOARDS_COL_COUNT;
+    static const uint8_t MATRIX_ROW_COUNT = LEDBOARD_ROW_COUNT * BOARDS_ROW_COUNT;
+    static const uint8_t MATRIX_PIXEL_COUNT = MATRIX_COL_COUNT * MATRIX_ROW_COUNT;
 
-    static constexpr uint8_t LEDBoards_rotated[Matrix_row_count][Matrix_col_count] = {
+    static constexpr uint8_t LEDBOARDS_ROTATED
+            [MATRIX_ROW_COUNT][MATRIX_COL_COUNT] = {
         {15, 14, 13, 12,    3,  7, 11, 15},
         {11, 10,  9,  8,    2,  6, 10, 14},
         { 7,  6,  5,  4,    1,  5,  9, 13},
@@ -108,7 +112,7 @@ public:
     };
 
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // public types
 
     // enum function_command_pulse_count {
@@ -138,15 +142,14 @@ public:
     // };
 
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // constructor
 
     MC_Animation();
     ~MC_Animation();
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // public functions
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // basic library api
     void begin();
@@ -154,23 +157,22 @@ public:
     void end();
 
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // configurations
 
-    uint8_t pmap[Matrix_row_count][Matrix_col_count];
+    uint8_t pmap[MATRIX_ROW_COUNT][MATRIX_COL_COUNT];
 
 private:
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // private functions
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     void pmap_init();
 
     uint8_t mymap_LEDBoard_4x4_HD(uint8_t col, uint8_t row);
     uint8_t mymap_LEDBoard_4x4_HD_CrystalLightGuide(uint8_t col, uint8_t row);
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ##########################################
     // attributes
     bool ready;
 

@@ -48,13 +48,13 @@ SOFTWARE.
 
 // namespace MCAnim = MC_Animation;
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ##########################################
 // functions
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 MC_Animation::MC_Animation() {
     ready = false;
+    pmap_init();
 }
 
 MC_Animation::~MC_Animation() {
@@ -87,20 +87,38 @@ void MC_Animation::update() {
 
 
 
+
+// ##########################################
+// private functions
+
+void MC_Animation::pmap_init() {
+    // """Prepare Static Map."""
+    for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
+        for (size_t col_index = 0; col_index < MATRIX_COL_COUNT; col_index++) {
+            pmap[row_index][col_index] =
+                mymap_LEDBoard_4x4_HD(
+                // mymap_LEDBoard_4x4_HD_CrystalLightGuide(
+                    col_index,
+                    row_index
+                );
+        }
+    }
+}
+
 uint8_t MC_Animation::mymap_LEDBoard_4x4_HD(
     uint8_t col, uint8_t row
 ) {
     // """Map row and col to pixel_index."""
     // get Board position
-    uint8_t board_col = col / LEDBoard_col_count;
-    uint8_t board_row = row / LEDBoard_row_count;
-    uint8_t board_sub_col = col % LEDBoard_col_count;
-    uint8_t board_sub_row = row % LEDBoard_row_count;
+    uint8_t board_col = col / LEDBOARD_COL_COUNT;
+    uint8_t board_row = row / LEDBOARD_ROW_COUNT;
+    uint8_t board_sub_col = col % LEDBOARD_COL_COUNT;
+    uint8_t board_sub_row = row % LEDBOARD_ROW_COUNT;
 
-    uint8_t board_offset = Boards_positions[board_row][board_col];
-    uint8_t pixel_offset = LEDBoard_single[board_sub_row][board_sub_col];
+    uint8_t board_offset = BOARDS_POSITIONS[board_row][board_col];
+    uint8_t pixel_offset = LEDBOARD_SINGLE[board_sub_row][board_sub_col];
 
-    uint8_t pixel_index = (pixel_offset * Boards_count) + board_offset;
+    uint8_t pixel_index = (pixel_offset * BOARDS_COUNT) + board_offset;
 
     return pixel_index;
 }
@@ -111,27 +129,20 @@ uint8_t MC_Animation::mymap_LEDBoard_4x4_HD_CrystalLightGuide(
 ) {
     // """Map row and col to pixel_index."""
     // get Board position
-    uint8_t board_col = col / LEDBoard_col_count;
-    uint8_t board_row = row / LEDBoard_row_count;
-    // uint8_t board_sub_col = col % LEDBoard_col_count;
-    // uint8_t board_sub_row = row % LEDBoard_row_count;
+    uint8_t board_col = col / LEDBOARD_COL_COUNT;
+    uint8_t board_row = row / LEDBOARD_ROW_COUNT;
+    // uint8_t board_sub_col = col % LEDBOARD_COL_COUNT;
+    // uint8_t board_sub_row = row % LEDBOARD_ROW_COUNT;
 
-    uint8_t board_offset = Boards_positions[board_row][board_col];
-    // pixel_offset = LEDBoard_single[board_sub_row][board_sub_col];
+    uint8_t board_offset = BOARDS_POSITIONS[board_row][board_col];
+    // pixel_offset = LEDBOARD_SINGLE[board_sub_row][board_sub_col];
 
-    uint8_t pixel_offset = LEDBoards_rotated[row][col];
+    uint8_t pixel_offset = LEDBOARDS_ROTATED[row][col];
     // print("{:>3} {:>3}: {:>3}".format(col, row, pixel_offset));
-    uint8_t pixel_index = (pixel_offset * Boards_count) + board_offset;
+    uint8_t pixel_index = (pixel_offset * BOARDS_COUNT) + board_offset;
 
     return pixel_index;
 }
-
-// pmap = PixelMap2D(
-//     row_count=Matrix_row_count,
-//     col_count=Matrix_col_count,
-//     // map_function=mymap_LEDBoard_4x4_HD
-//     map_function=mymap_LEDBoard_4x4_HD_CrystalLightGuide
-// )
 
 
 // ##########################################
