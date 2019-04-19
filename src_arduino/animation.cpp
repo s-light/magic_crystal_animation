@@ -435,10 +435,10 @@ const uint8_t MC_Animation::LEDBOARD_SINGLE
 
 const uint8_t MC_Animation::BOARDS_POSITIONS
         [BOARDS_ROW_COUNT][BOARDS_COL_COUNT] = {
-    // {2, 3},
-    // {1, 0},
-    // ------
+    {2, 3},
     {1, 0},
+    // ------
+    // {1, 0},
     // {0},
 };
 
@@ -449,10 +449,10 @@ const uint8_t MC_Animation::LEDBOARDS_ROTATED
     { 7,  6,  5,  4,    1,  5,  9, 13},
     { 3,  2,  1,  0,    0,  4,  8, 12},
 
-    // {12,  8,  4,  0,    0,  1,  2,  3},
-    // {13,  9,  5,  1,    4,  5,  6,  7},
-    // {14, 10,  6,  2,    8,  9, 10, 11},
-    // {15, 11,  7,  3,   12, 13, 14, 15},
+    {12,  8,  4,  0,    0,  1,  2,  3},
+    {13,  9,  5,  1,    4,  5,  6,  7},
+    {14, 10,  6,  2,    8,  9, 10, 11},
+    {15, 11,  7,  3,   12, 13, 14, 15},
 };
 
 void MC_Animation::pmap_init() {
@@ -460,8 +460,8 @@ void MC_Animation::pmap_init() {
     for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
         for (size_t col_index = 0; col_index < MATRIX_COL_COUNT; col_index++) {
             pmap[row_index][col_index] =
-                mymap_LEDBoard_4x4_HD(
-                // mymap_LEDBoard_4x4_HD_CrystalLightGuide(
+                // mymap_LEDBoard_4x4_HD(
+                mymap_LEDBoard_4x4_HD_CrystalLightGuide(
                     col_index, row_index);
         }
     }
@@ -551,6 +551,7 @@ void MC_Animation::animate__pixel_checker() {
 }
 
 void MC_Animation::animate__line() {
+    tlc.set_pixel_all_16bit_value(0, 0, 0);
     for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
         tlc.set_pixel_16bit_value(pmap[row_index][step], 0, 0, 500);
     }

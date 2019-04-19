@@ -79,7 +79,7 @@ public:
 
 
     static const uint8_t BOARDS_COL_COUNT = 2;
-    static const uint8_t BOARDS_ROW_COUNT = 1;
+    static const uint8_t BOARDS_ROW_COUNT = 2;
     static const uint8_t BOARDS_COUNT = BOARDS_COL_COUNT * BOARDS_ROW_COUNT;
     static const uint8_t BOARDS_POSITIONS
         [BOARDS_ROW_COUNT][BOARDS_COL_COUNT];
@@ -138,7 +138,7 @@ public:
     bool animation_run = true;
 
     //uint16_t animation_interval = 1000; //ms
-    uint16_t animation_interval = 5; //ms
+    uint16_t animation_interval = 100; //ms
 
     uint8_t step = 0;
 
