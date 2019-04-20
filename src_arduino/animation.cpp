@@ -55,6 +55,8 @@ SOFTWARE.
 // include own headerfile
 #include "animation.h"
 
+#include "color.h"
+
 // namespace MCAnim = MC_Animation;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -529,42 +531,150 @@ void MC_Animation::animation_init(Stream &out) {
 void MC_Animation::animation_update() {
     if ((millis() - animation_timestamp) > animation_interval) {
         animation_timestamp = millis();
-        if (animation_run) {
-            // animate__pixel_checker();
-            animate__line();
+        // effect__step_inc();
+
+        effect__offset_inc();
+    }
+
+    if (animation_run) {
+        // effect__pixel_checker();
+        // effect__line();
+        effect__test();
+        // effect__plasma();
+
+        // write data to chips
+        tlc.show();
+    }
+}
+
+
+
+void MC_Animation::effect__step_inc() {
+    step += 1;
+    // Serial.print("step:");
+    // Serial.println(step);
+    if (step > step_wrap) {
+        step = 0;
+        Serial.println("step wrap around.");
+    }
+}
+
+void MC_Animation::effect__pixel_checker() {
+    tlc.set_pixel_all_16bit_value(0, 0, 0);
+    tlc.set_pixel_16bit_value(step, 0, 0, 500);
+}
+
+void MC_Animation::effect__line() {
+    tlc.set_pixel_all_16bit_value(0, 0, 0);
+    for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
+        tlc.set_pixel_16bit_value(pmap[row_index][step], 0, 0, 500);
+    }
+}
+
+
+
+void MC_Animation::effect__offset_inc() {
+    _offset += stepsize;
+    // Serial.print("_offset:");
+    // Serial.println(_offset);
+    // if (_offset >  1.0) {
+    if (_offset >  (PI * 30)) {
+        _offset = 0;
+        Serial.println("offset wrap around.");
+    }
+}
+
+void MC_Animation::effect__test() {
+    for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
+        for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
+            float hue = map_range(
+                _offset,
+                0.0, (PI * 30),
+                0.0, 1.0
+            );
+            CHSV color_hsv = CHSV(hue, 1.0, 0.01);
+            CRGB color_rgb = hsv2rgb(color_hsv);
+            tlc.set_pixel_float_value(
+                pmap[row_i][col_i],
+                color_rgb.r, color_rgb.g, color_rgb.b);
+            // tlc.set_pixel_16bit_value(
+            //     pmap[row_i][col_i],
+            //     0, col_i * step * 10 , row_i * 100);
+        }
+    }
+}
+
+void MC_Animation::effect__plasma() {
+    for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
+        for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
+            // calculate plasma
+            // mostly inspired by
+            // https://www.bidouille.org/prog/plasma
+            float col = map_range(
+                col_i,
+                0, MATRIX_COL_COUNT-1,
+                // 0, 1.0
+                -0.5, 0.5
+            );
+            float row = map_range(
+                row_i,
+                0, MATRIX_ROW_COUNT-1,
+                // 0, 1.0
+                -0.5, 0.5
+            );
+
+            // moving rings
+            float cx = col + 0.5 * sin(_offset / 5);
+            float cy = row + 0.5 * cos(_offset / 3);
+            float value = sin(
+                sqrt(100 * (cx*cx + cy*cy) + 1)
+                + _offset
+            );
+            // mapping
+            float contrast_calc = map_range(
+                value,
+                -1.0, 1.0,
+                // self._contrast_min, self._contrast_max
+                0.11, 1.0
+            );
+            float hue = map_range(
+                value,
+                -1.0, 1.0,
+                // self._hue_min, self._hue_max
+                0.0, 0.01
+            );
+            // map to color
+            CHSV color_hsv = CHSV(hue, contrast_calc, brightness);
+            CRGB color_rgb = hsv2rgb(color_hsv);
+            // handle gamma and global brightness
+            // fancyled.gamma_adjust(brightness=self.brightness);
+            tlc.set_pixel_float_value(
+                pmap[row_i][col_i],
+                color_rgb.r, color_rgb.g, color_rgb.b
+            );
         }
     }
 }
 
 
-void MC_Animation::animate__pixel_checker() {
-    tlc.set_pixel_16bit_value(step, 0, 0, 500);
-    step += 1;
-    // Serial.print("step:");
-    // Serial.println(step);
-    if (step >= tlc.pixel_count) {
-        step = 0;
-        Serial.println("step wrap around.");
-        tlc.set_pixel_all_16bit_value(0, 0, 0);
-    }
-    tlc.show();
+
+float MC_Animation::map_range(
+    float x, float in_min, float in_max, float out_min, float out_max
+) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-void MC_Animation::animate__line() {
-    tlc.set_pixel_all_16bit_value(0, 0, 0);
-    for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
-        tlc.set_pixel_16bit_value(pmap[row_index][step], 0, 0, 500);
-    }
-    step += 1;
-    // Serial.print("step:");
-    // Serial.println(step);
-    if (step > MATRIX_COL_COUNT) {
-        step = 0;
-        Serial.println("step wrap around.");
-        tlc.set_pixel_all_16bit_value(0, 0, 0);
-    }
-    tlc.show();
+float MC_Animation::map_range(
+    int x, int in_min, int in_max, float out_min, float out_max
+) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+// float MC_Animation::map_range_int(
+//     uint8_t x, uint8_t in_min, uint8_t in_max, float out_min, float out_max
+// ) {
+//     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+// }
 
 
 

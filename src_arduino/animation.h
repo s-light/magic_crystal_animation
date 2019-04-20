@@ -56,8 +56,24 @@ SOFTWARE.
 #include <SPI.h>
 #include <slight_TLC5957.h>
 
+
+
+
 class MC_Animation {
 public:
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // structs
+
+    // typedef void (* tAnimationUpdatePixel) ();
+    // typedef void (* tAnimationUpdatePosition) ();
+    //
+    // struct animation_t {
+    //   const tAnimationUpdatePixel update_pixel;
+    //   const tAnimationUpdatePosition update_position;
+    //   const uint16_t mask;
+    //   const uint16_t defaultv;
+    // };
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes
@@ -129,6 +145,13 @@ public:
     float gsclock_set_frequency_MHz(float frequency_MHz);
     float gsclock_get_frequency_MHz();
 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // helper
+
+    float map_range(
+        float x, float in_min, float in_max, float out_min, float out_max);
+    float map_range(
+        int x, int in_min, int in_max, float out_min, float out_max);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // configurations
@@ -142,14 +165,33 @@ public:
 
     uint8_t step = 0;
 
+    float contrast = 0.99;
+    float brightness = 0.1;
+    float stepsize = 0.1;
+
+    // const float PI = 3.141592;
+    // is already defined...
+
 private:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // private functions
 
     // animation
-    void animate__pixel_checker();
-    void animate__line();
+    void animation_init(Stream &out);
+    void animation_update();
+
+
+    // const uint8_t step_wrap = MATRIX_COL_COUNT;
+    const uint8_t step_wrap = MATRIX_PIXEL_COUNT;
+    void effect__step_inc();
+    void effect__pixel_checker();
+    void effect__line();
+
+    float _offset = 0;
+    void effect__offset_inc();
+    void effect__test();
+    void effect__plasma();
 
     // others
     void pmap_init();
@@ -158,9 +200,6 @@ private:
     uint8_t mymap_LEDBoard_4x4_HD_CrystalLightGuide(uint8_t col, uint8_t row);
 
     void tlc_init(Stream &out);
-
-    void animation_init(Stream &out);
-    void animation_update();
 
     void gsclock_init(Print &out);
     void setup_D9_10MHz();
