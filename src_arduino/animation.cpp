@@ -53,9 +53,10 @@ SOFTWARE.
 #include <slight_TLC5957.h>
 
 // include own headerfile
-#include "animation.h"
+#include "./animation.h"
 
-#include "color.h"
+#include "./color.h"
+#include "./mapping.h"
 
 // namespace MCAnim = MC_Animation;
 
@@ -513,8 +514,8 @@ uint8_t MC_Animation::mymap_LEDBoard_4x4_HD_CrystalLightGuide(
 
 void MC_Animation::animation_init(Stream &out) {
     out.println(F("init animation:")); {
-        out.print(F("  animation_interval: "));
-        out.print(animation_interval);
+        out.print(F("  effect_duration: "));
+        out.print(effect_duration);
         out.println(F("ms"));
 
         // out.println(F("  Set all Pixel to 21845."));
@@ -523,48 +524,46 @@ void MC_Animation::animation_init(Stream &out) {
         tlc.set_pixel_all_16bit_value(100, 0, 100);
         tlc.show();
 
-        animation_timestamp = millis();
+        effect_start = millis();
+        effect_end = millis() + effect_duration;
     }
     out.println(F("  finished."));
 }
 
 void MC_Animation::animation_update() {
-    if ((millis() - animation_timestamp) > animation_interval) {
-        animation_timestamp = millis();
-        // effect__step_inc();
-
-        effect__offset_inc();
-    }
-
+    calculate_effect_position();
     if (animation_run) {
         // effect__pixel_checker();
         // effect__line();
-        effect__test();
-        // effect__plasma();
+        // effect__rainbow();
+        effect__plasma();
 
         // write data to chips
         tlc.show();
     }
 }
 
-
-
-void MC_Animation::effect__step_inc() {
-    step += 1;
-    // Serial.print("step:");
-    // Serial.println(step);
-    if (step > step_wrap) {
-        step = 0;
-        Serial.println("step wrap around.");
+void MC_Animation::calculate_effect_position() {
+    effect_position = normalize_to_01(millis(), effect_start, effect_end);
+    if (effect_position >  1.0) {
+        effect_position = 0;
+        effect_start = millis();
+        effect_end = millis() + effect_duration;
+        Serial.println("effect_position loop restart.");
     }
 }
 
+
+
 void MC_Animation::effect__pixel_checker() {
+    uint8_t step = map_range_01_to__uint8(
+        effect_position, 0, MATRIX_PIXEL_COUNT);
     tlc.set_pixel_all_16bit_value(0, 0, 0);
     tlc.set_pixel_16bit_value(step, 0, 0, 500);
 }
 
 void MC_Animation::effect__line() {
+    uint8_t step = map_range_01_to__uint8(effect_position, 0, MATRIX_COL_COUNT);
     tlc.set_pixel_all_16bit_value(0, 0, 0);
     for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
         tlc.set_pixel_16bit_value(pmap[row_index][step], 0, 0, 500);
@@ -572,27 +571,11 @@ void MC_Animation::effect__line() {
 }
 
 
-
-void MC_Animation::effect__offset_inc() {
-    _offset += stepsize;
-    // Serial.print("_offset:");
-    // Serial.println(_offset);
-    // if (_offset >  1.0) {
-    if (_offset >  (PI * 30)) {
-        _offset = 0;
-        Serial.println("offset wrap around.");
-    }
-}
-
-void MC_Animation::effect__test() {
+void MC_Animation::effect__rainbow() {
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
-            float hue = map_range(
-                _offset,
-                0.0, (PI * 30),
-                0.0, 1.0
-            );
-            CHSV color_hsv = CHSV(hue, 1.0, 0.01);
+            // full rainbow
+            CHSV color_hsv = CHSV(effect_position, 1.0, brightness);
             CRGB color_rgb = hsv2rgb(color_hsv);
             tlc.set_pixel_float_value(
                 pmap[row_i][col_i],
@@ -605,6 +588,7 @@ void MC_Animation::effect__test() {
 }
 
 void MC_Animation::effect__plasma() {
+    float _offset = map_range_01_to(effect_position, 0.0, (PI * 30));
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
             // calculate plasma
@@ -631,20 +615,27 @@ void MC_Animation::effect__plasma() {
                 + _offset
             );
             // mapping
-            float contrast_calc = map_range(
-                value,
-                -1.0, 1.0,
-                // self._contrast_min, self._contrast_max
-                0.11, 1.0
-            );
+            // float contrast_calc = map_range(
+            //     value,
+            //     -1.0, 1.0,
+            //     // self._contrast_min, self._contrast_max
+            //     0.0, 1.0
+            // );
             float hue = map_range(
                 value,
                 -1.0, 1.0,
                 // self._hue_min, self._hue_max
-                0.0, 0.01
+                0.0, 0.08
+            );
+            float brightness_calc = map_range(
+                value,
+                1.0, -1.0,
+                // self._hue_min, self._hue_max
+                -0.005, brightness
             );
             // map to color
-            CHSV color_hsv = CHSV(hue, contrast_calc, brightness);
+            CHSV color_hsv = CHSV(hue, 1.0, brightness_calc);
+            // CHSV color_hsv = CHSV(hue, contrast_calc, brightness_calc);
             CRGB color_rgb = hsv2rgb(color_hsv);
             // handle gamma and global brightness
             // fancyled.gamma_adjust(brightness=self.brightness);
@@ -658,23 +649,6 @@ void MC_Animation::effect__plasma() {
 
 
 
-float MC_Animation::map_range(
-    float x, float in_min, float in_max, float out_min, float out_max
-) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-float MC_Animation::map_range(
-    int x, int in_min, int in_max, float out_min, float out_max
-) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-// float MC_Animation::map_range_int(
-//     uint8_t x, uint8_t in_min, uint8_t in_max, float out_min, float out_max
-// ) {
-//     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-// }
 
 
 

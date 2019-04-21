@@ -45,7 +45,7 @@ SOFTWARE.
 #include <Arduino.h>
 
 struct CHSV {
-    // based on:
+    // based on / copied partly from:
     // https://github.com/FastLED/FastLED/blob/master/pixeltypes.h
     union {
         float hue;
@@ -72,7 +72,7 @@ struct CHSV {
 };
 
 struct CRGB {
-    // based on:
+    // based on / copied partly from:
     // https://github.com/FastLED/FastLED/blob/master/pixeltypes.h
     union {
         float r;
@@ -161,5 +161,14 @@ CRGB hsv2rgb(CHSV hsv) {
     return result_rgb;
 }
 
+// TODO(s-light): port hsv2rgb_rainbow
+// https://github.com/FastLED/FastLED/blob/master/hsv2rgb.cpp#L278
+
+
+// TODO(s-light): port gamma_adjust from
+// https://github.com/adafruit/Adafruit_CircuitPython_FancyLED/blob/master/adafruit_fancyled/adafruit_fancyled.py#L331
+// or
+// https://github.com/FastLED/FastLED/blob/master/colorutils.h#L1679
+// https://github.com/FastLED/FastLED/blob/master/colorutils.cpp#L1140-L1151
 
 #endif  // color_H_

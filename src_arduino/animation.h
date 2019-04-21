@@ -148,11 +148,6 @@ public:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
 
-    float map_range(
-        float x, float in_min, float in_max, float out_min, float out_max);
-    float map_range(
-        int x, int in_min, int in_max, float out_min, float out_max);
-
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // configurations
 
@@ -160,17 +155,12 @@ public:
 
     bool animation_run = true;
 
-    //uint16_t animation_interval = 1000; //ms
-    uint16_t animation_interval = 100; //ms
-
-    uint8_t step = 0;
-
-    float contrast = 0.99;
-    float brightness = 0.1;
-    float stepsize = 0.1;
+    uint16_t effect_duration = 10 * 1000; //ms
+    float contrast = 0.995;
+    float brightness = 0.005;
 
     // const float PI = 3.141592;
-    // is already defined...
+    // is already defined by arduino or some other defaults...
 
 private:
 
@@ -180,17 +170,11 @@ private:
     // animation
     void animation_init(Stream &out);
     void animation_update();
+    void calculate_effect_position();
 
-
-    // const uint8_t step_wrap = MATRIX_COL_COUNT;
-    const uint8_t step_wrap = MATRIX_PIXEL_COUNT;
-    void effect__step_inc();
     void effect__pixel_checker();
     void effect__line();
-
-    float _offset = 0;
-    void effect__offset_inc();
-    void effect__test();
+    void effect__rainbow();
     void effect__plasma();
 
     // others
@@ -209,7 +193,10 @@ private:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes
     bool ready;
-    unsigned long animation_timestamp = 0;
+
+    uint32_t effect_start = 0;
+    uint32_t effect_end = 0;
+    float effect_position = 0.0;
 
 };  // class MC_Animation
 

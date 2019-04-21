@@ -211,8 +211,8 @@ void menu__print_help(Print &out) {
     out.print(F("\t 'e': toggle ESPWM 'e' ("));
     out.print(animation.tlc.get_fc_ESPWM());
     out.println(F(")"));
-    out.print(F("\t 'a': set animation_interval 'a1000' ("));
-    out.print(animation.animation_interval);
+    out.print(F("\t 'a': set effect_duration 'a1000' ("));
+    out.print(animation.effect_duration);
     out.println(F("ms)"));
     out.print(F("\t 'g': set grayscale frequency in MHz 'g1.0' ("));
     out.print(animation.gsclock_get_frequency_MHz(), 4);
@@ -284,7 +284,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("set animation interval:"));
             uint16_t value = atoi(&command[1]);
             out.print(value);
-            animation.animation_interval = value;
+            animation.effect_duration = value;
             out.println();
         } break;
         case 'g': {
