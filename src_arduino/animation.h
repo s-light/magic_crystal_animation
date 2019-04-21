@@ -56,7 +56,7 @@ SOFTWARE.
 #include <SPI.h>
 #include <slight_TLC5957.h>
 
-
+#include "./color.h"
 
 
 class MC_Animation {
@@ -176,6 +176,7 @@ private:
     void effect__line();
     void effect__rainbow();
     void effect__plasma();
+    CHSV plasma_calculate_pixelcolor(float col, float row, float offset);
 
     // others
     void pmap_init();

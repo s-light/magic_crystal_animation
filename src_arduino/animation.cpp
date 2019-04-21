@@ -570,7 +570,6 @@ void MC_Animation::effect__line() {
     }
 }
 
-
 void MC_Animation::effect__rainbow() {
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
@@ -587,8 +586,42 @@ void MC_Animation::effect__rainbow() {
     }
 }
 
+
+CHSV MC_Animation::plasma_calculate_pixelcolor(
+    float col, float row, float offset
+) {
+    // moving rings
+    float cx = col + 0.5 * sin(offset / 5);
+    float cy = row + 0.5 * cos(offset / 3);
+    float xy_value = sin(
+        sqrt(100 * (cx*cx + cy*cy) + 1)
+        + offset
+    );
+    // mapping
+    float pixel_hue = map_range(
+        xy_value,
+        -1.0, 1.0,
+        // self._hue_min, self._hue_max
+        0.0, 0.08
+    );
+    float pixel_saturation = map_range(
+        xy_value,
+        -1.0, 1.0,
+        0.0, 1.0
+    );
+    float pixel_value = map_range(
+        xy_value,
+        1.0, -1.0,
+        // self._contrast_min, self._contrast_max
+        -0.005, 1.0
+    );
+    // map to color
+    CHSV pixel_hsv = CHSV(pixel_hue, pixel_saturation, pixel_value);
+    return pixel_hsv;
+}
+
 void MC_Animation::effect__plasma() {
-    float _offset = map_range_01_to(effect_position, 0.0, (PI * 30));
+    float offset = map_range_01_to(effect_position, 0.0, (PI * 30));
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
             // calculate plasma
@@ -597,45 +630,16 @@ void MC_Animation::effect__plasma() {
             float col = map_range(
                 col_i,
                 0, MATRIX_COL_COUNT-1,
-                // 0, 1.0
                 -0.5, 0.5
             );
             float row = map_range(
                 row_i,
                 0, MATRIX_ROW_COUNT-1,
-                // 0, 1.0
                 -0.5, 0.5
             );
-
-            // moving rings
-            float cx = col + 0.5 * sin(_offset / 5);
-            float cy = row + 0.5 * cos(_offset / 3);
-            float xy_value = sin(
-                sqrt(100 * (cx*cx + cy*cy) + 1)
-                + _offset
-            );
-            // mapping
-            float pixel_hue = map_range(
-                xy_value,
-                -1.0, 1.0,
-                // self._hue_min, self._hue_max
-                0.0, 0.08
-            );
-            float pixel_saturation = map_range(
-                xy_value,
-                -1.0, 1.0,
-                0.0, 1.0
-            );
-            float pixel_value = map_range(
-                xy_value,
-                1.0, -1.0,
-                // self._contrast_min, self._contrast_max
-                -0.005, 1.0
-            );
-            // use global brightness
-            pixel_value *= brightness;
-            // map to color
-            CHSV pixel_hsv = CHSV(pixel_hue, pixel_saturation, pixel_value);
+            CHSV pixel_hsv = plasma_calculate_pixelcolor(col, row, offset);
+            // handle global brightness
+            pixel_hsv.value *= brightness;
             CRGB pixel_rgb = hsv2rgb(pixel_hsv);
             // handle gamma and global brightness
             // fancyled.gamma_adjust(brightness=self.brightness);
