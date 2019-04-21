@@ -610,38 +610,38 @@ void MC_Animation::effect__plasma() {
             // moving rings
             float cx = col + 0.5 * sin(_offset / 5);
             float cy = row + 0.5 * cos(_offset / 3);
-            float value = sin(
+            float xy_value = sin(
                 sqrt(100 * (cx*cx + cy*cy) + 1)
                 + _offset
             );
             // mapping
-            // float contrast_calc = map_range(
-            //     value,
-            //     -1.0, 1.0,
-            //     // self._contrast_min, self._contrast_max
-            //     0.0, 1.0
-            // );
-            float hue = map_range(
-                value,
+            float pixel_hue = map_range(
+                xy_value,
                 -1.0, 1.0,
                 // self._hue_min, self._hue_max
                 0.0, 0.08
             );
-            float brightness_calc = map_range(
-                value,
-                1.0, -1.0,
-                // self._hue_min, self._hue_max
-                -0.005, brightness
+            float pixel_saturation = map_range(
+                xy_value,
+                -1.0, 1.0,
+                0.0, 1.0
             );
+            float pixel_value = map_range(
+                xy_value,
+                1.0, -1.0,
+                // self._contrast_min, self._contrast_max
+                -0.005, 1.0
+            );
+            // use global brightness
+            pixel_value *= brightness;
             // map to color
-            CHSV color_hsv = CHSV(hue, 1.0, brightness_calc);
-            // CHSV color_hsv = CHSV(hue, contrast_calc, brightness_calc);
-            CRGB color_rgb = hsv2rgb(color_hsv);
+            CHSV pixel_hsv = CHSV(pixel_hue, pixel_saturation, pixel_value);
+            CRGB pixel_rgb = hsv2rgb(pixel_hsv);
             // handle gamma and global brightness
             // fancyled.gamma_adjust(brightness=self.brightness);
             tlc.set_pixel_float_value(
                 pmap[row_i][col_i],
-                color_rgb.r, color_rgb.g, color_rgb.b
+                pixel_rgb.r, pixel_rgb.g, pixel_rgb.b
             );
         }
     }
