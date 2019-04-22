@@ -161,8 +161,8 @@ public:
     bool animation_run = true;
 
     uint16_t effect_duration = 20 * 1000; //ms
-    float hue = 0.1;
-    float contrast = 0.995;
+    float hue = 0.55;
+    float contrast = 1.0;
     float brightness = 0.1;
 
     // const float PI = 3.141592;
@@ -203,6 +203,7 @@ private:
 
     uint32_t effect_start = 0;
     uint32_t effect_end = 0;
+    uint32_t effect_loopcount = 0;
     float effect_position = 0.0;
 
 };  // class MC_Animation

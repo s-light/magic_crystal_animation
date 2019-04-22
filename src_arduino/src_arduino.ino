@@ -209,13 +209,13 @@ void menu__print_help(Print &out) {
     out.print(animation.effect_duration);
     out.println(F("ms)"));
     out.print(F("\t 'h': set hue 'h1.0' ("));
-    out.print(animation.hue);
+    out.print(animation.hue, 4);
     out.println(F(")"));
     out.print(F("\t 'c': set contrast 'c1.0' ("));
-    out.print(animation.contrast);
+    out.print(animation.contrast, 4);
     out.println(F(")"));
     out.print(F("\t 'b': set brightness 'b1.0' ("));
-    out.print(animation.brightness);
+    out.print(animation.brightness, 4);
     out.println(F(")"));
     out.println();
     // out.println(F("\t 'f': test fc 'f'"));

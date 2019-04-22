@@ -172,12 +172,17 @@ void MC_Animation::menu__time_meassurements(Print &out) {
     uint32_t tm_start = 0;
     uint32_t tm_end = 0;
     uint32_t tm_duration = 0;
+    uint32_t tm_loop_count = 10;
 
-    tm_start = millis();
-    effect__plasma();
-    tm_end = millis();
-    tm_duration = tm_end - tm_start;
-    out.print(tm_duration);
+    for (size_t i = 0; i < tm_loop_count; i++) {
+        tm_start = millis();
+        effect__plasma();
+        tlc.show();
+        tm_end = millis();
+        tm_duration += (tm_end - tm_start);
+    }
+
+    out.print(tm_duration / static_cast<float>(tm_loop_count));
     out.print(F("ms / call"));
     out.println();
 }
@@ -589,12 +594,19 @@ void MC_Animation::animation_update() {
 
 void MC_Animation::calculate_effect_position() {
     effect_position = normalize_to_01(millis(), effect_start, effect_end);
+    effect_loopcount++;
     if (effect_position >  1.0) {
         effect_position = 0;
+        uint16_t duration_seconds = (millis() - effect_start) / 1000;
+        uint32_t fps = duration_seconds;
+        effect_loopcount = 0;
         effect_start = millis();
         effect_end = millis() + effect_duration;
         if (animation_run) {
-            Serial.println("effect_position loop restart.");
+            Serial.print("effect_position loop restart. (");
+            Serial.print(fps);
+            Serial.print("FPS)");
+            Serial.println();
         }
     }
 }
