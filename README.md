@@ -1,6 +1,8 @@
 # magic_crystal_animation
 animation firmware for [magic_crystal](https://github.com/s-light/magic_crystal)
 
+visit: [project page](https://s-light.github.io/magic_crystal_animation/)
+
 there are two versions:
 - CircuitPython [src/](src/)
 - Arduino [src_arduino/](src_arduino/)
@@ -12,7 +14,7 @@ i try and keep theme functional similar.
 you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
 <video
 src="http://s-light.eu/video/VID_20190422_190246.webm"
-style="max-width:100vw; max-height:100vh;"
+style="max-width:100%; max-height:100vh;"
 controls="" loop=""></video>
 
 
