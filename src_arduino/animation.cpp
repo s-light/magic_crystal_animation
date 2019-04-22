@@ -166,6 +166,50 @@ void MC_Animation::menu__set_pixel(Print &out, char *command) {
     out.println();
 }
 
+void MC_Animation::menu__time_meassurements(Print &out) {
+    out.println(F("time_meassurements:"));
+
+    uint32_t tm_start = 0;
+    uint32_t tm_end = 0;
+    uint32_t tm_duration = 0;
+
+    tm_start = millis();
+    effect__plasma();
+    tm_end = millis();
+    tm_duration = tm_end - tm_start;
+    out.print(tm_duration);
+    out.print(F("ms / call"));
+    out.println();
+}
+
+
+void MC_Animation::menu__set_hue(Print &out, char *command) {
+    out.print(F("Set hue "));
+    uint8_t command_offset = 1;
+    float value = atof(&command[command_offset]);
+    out.print(value);
+    hue = value;
+    out.println();
+}
+
+void MC_Animation::menu__set_contrast(Print &out, char *command) {
+    out.print(F("Set contrast "));
+    uint8_t command_offset = 1;
+    float value = atof(&command[command_offset]);
+    out.print(value);
+    contrast = value;
+    out.println();
+}
+
+void MC_Animation::menu__set_brightness(Print &out, char *command) {
+    out.print(F("Set brightness "));
+    uint8_t command_offset = 1;
+    float value = atof(&command[command_offset]);
+    out.print(value);
+    brightness = value;
+    out.println();
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TLC5957 / LED-Driver
@@ -549,7 +593,9 @@ void MC_Animation::calculate_effect_position() {
         effect_position = 0;
         effect_start = millis();
         effect_end = millis() + effect_duration;
-        Serial.println("effect_position loop restart.");
+        if (animation_run) {
+            Serial.println("effect_position loop restart.");
+        }
     }
 }
 
@@ -587,7 +633,8 @@ void MC_Animation::effect__rainbow() {
 }
 
 
-CHSV MC_Animation::plasma_calculate_pixelcolor(
+
+CHSV MC_Animation::effect__plasma_get_pixelcolor(
     float col, float row, float offset
 ) {
     // moving rings
@@ -602,18 +649,20 @@ CHSV MC_Animation::plasma_calculate_pixelcolor(
         xy_value,
         -1.0, 1.0,
         // self._hue_min, self._hue_max
-        0.0, 0.08
+        // 0.0, 0.08
+        hue - 0.05, hue + 0.05
     );
     float pixel_saturation = map_range(
         xy_value,
         -1.0, 1.0,
-        0.0, 1.0
+        1.0, 1.0
     );
     float pixel_value = map_range(
         xy_value,
         1.0, -1.0,
         // self._contrast_min, self._contrast_max
-        -0.005, 1.0
+        // -0.005, 1.0
+        1.0 - contrast, 1.0
     );
     // map to color
     CHSV pixel_hsv = CHSV(pixel_hue, pixel_saturation, pixel_value);
@@ -637,7 +686,7 @@ void MC_Animation::effect__plasma() {
                 0, MATRIX_ROW_COUNT-1,
                 -0.5, 0.5
             );
-            CHSV pixel_hsv = plasma_calculate_pixelcolor(col, row, offset);
+            CHSV pixel_hsv = effect__plasma_get_pixelcolor(col, row, offset);
             // handle global brightness
             pixel_hsv.value *= brightness;
             CRGB pixel_rgb = hsv2rgb(pixel_hsv);

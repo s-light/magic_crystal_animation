@@ -140,7 +140,12 @@ public:
     // menu & helper
     void menu__set_pixel(Print &out, char *command);
     void menu__test_buffer(Print &out);
+    void menu__time_meassurements(Print &out);
     void print_tlc_buffer(Print &out);
+
+    void menu__set_hue(Print &out, char *command);
+    void menu__set_contrast(Print &out, char *command);
+    void menu__set_brightness(Print &out, char *command);
 
     float gsclock_set_frequency_MHz(float frequency_MHz);
     float gsclock_get_frequency_MHz();
@@ -155,9 +160,10 @@ public:
 
     bool animation_run = true;
 
-    uint16_t effect_duration = 10 * 1000; //ms
+    uint16_t effect_duration = 20 * 1000; //ms
+    float hue = 0.1;
     float contrast = 0.995;
-    float brightness = 0.005;
+    float brightness = 0.1;
 
     // const float PI = 3.141592;
     // is already defined by arduino or some other defaults...
@@ -176,7 +182,7 @@ private:
     void effect__line();
     void effect__rainbow();
     void effect__plasma();
-    CHSV plasma_calculate_pixelcolor(float col, float row, float offset);
+    CHSV effect__plasma_get_pixelcolor(float col, float row, float offset);
 
     // others
     void pmap_init();

@@ -202,18 +202,27 @@ void menu__print_help(Print &out) {
     out.println(F("\t 'Y': toggle DebugOut livesign LED"));
     out.println(F("\t 'x': tests"));
     out.println();
-    // out.println();
-    // out.println(F("\t 'f': test fc 'f'"));
-    out.println(F("\t 'u': tlc.show() 'u'"));
     out.print(F("\t 'r': toggle animation_run 'r' ("));
     out.print(animation.animation_run);
     out.println(F(")"));
+    out.print(F("\t 'd': set effect_duration 'd1000' ("));
+    out.print(animation.effect_duration);
+    out.println(F("ms)"));
+    out.print(F("\t 'h': set hue 'h1.0' ("));
+    out.print(animation.hue);
+    out.println(F(")"));
+    out.print(F("\t 'c': set contrast 'c1.0' ("));
+    out.print(animation.contrast);
+    out.println(F(")"));
+    out.print(F("\t 'b': set brightness 'b1.0' ("));
+    out.print(animation.brightness);
+    out.println(F(")"));
+    out.println();
+    // out.println(F("\t 'f': test fc 'f'"));
+    out.println(F("\t 'u': tlc.show() 'u'"));
     out.print(F("\t 'e': toggle ESPWM 'e' ("));
     out.print(animation.tlc.get_fc_ESPWM());
     out.println(F(")"));
-    out.print(F("\t 'a': set effect_duration 'a1000' ("));
-    out.print(animation.effect_duration);
-    out.println(F("ms)"));
     out.print(F("\t 'g': set grayscale frequency in MHz 'g1.0' ("));
     out.print(animation.gsclock_get_frequency_MHz(), 4);
     out.println(F("MHz)"));
@@ -221,10 +230,11 @@ void menu__print_help(Print &out) {
     out.print(animation.tlc.spi_baudrate / (1000.0 * 1000), 4);
     out.println(F("MHz)"));
     out.println(F("\t 't': set buffer to test values 't'"));
+    out.println(F("\t 'T': time_meassurements 'T'"));
     out.println(F("\t 'p': set pixel 'p0:65535'"));
     out.println(F("\t 'P': set all pixel 'P65535'"));
-    out.println(F("\t 'z': set all pixel to 21845 'z'"));
-    out.println(F("\t 'b': set all pixel to black 'b'"));
+    out.println(F("\t 'z': set all pixel to black 'b'"));
+    out.println(F("\t 'Z': set all pixel to 21845 'z'"));
     out.println(F("\t 'B': print Buffer 'B'"));
     out.println(F("\t 'F': print buffer_fc 'F'"));
     out.println();
@@ -240,8 +250,8 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
     // out.print(command);
     // out.println("'");
     switch (command[0]) {
-        case 'h':
-        case 'H':
+        // case 'h':
+        // case 'H':
         case '?': {
             menu__print_help(out);
         } break;
@@ -267,25 +277,36 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("nothing to do."));
             out.println(F("__________"));
         } break;
-        case 'u': {
-            out.println(F("write buffer to chips"));
-            animation.tlc.show();
-        } break;
+        // ---------------------
         case 'r': {
             out.println(F("toggle animation_run"));
             animation.animation_run = !animation.animation_run;
+        } break;
+        case 'd': {
+            out.println(F("set effect_duration:"));
+            uint16_t value = atoi(&command[1]);
+            out.print(value);
+            animation.effect_duration = value;
+            out.println();
+        } break;
+        case 'h': {
+            animation.menu__set_hue(out, command);
+        } break;
+        case 'c': {
+            animation.menu__set_contrast(out, command);
+        } break;
+        case 'b': {
+            animation.menu__set_brightness(out, command);
+        } break;
+        // ---------------------
+        case 'u': {
+            out.println(F("write buffer to chips"));
+            animation.tlc.show();
         } break;
         case 'e': {
             out.println(F("toggle ESPWM"));
             animation.tlc.set_fc_ESPWM_all(!animation.tlc.get_fc_ESPWM());
             animation.tlc.update_fc();
-        } break;
-        case 'a': {
-            out.println(F("set animation interval:"));
-            uint16_t value = atoi(&command[1]);
-            out.print(value);
-            animation.effect_duration = value;
-            out.println();
         } break;
         case 'g': {
             out.print(F("set grayscale frequency - new value:"));
@@ -309,6 +330,9 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         case 't': {
             animation.menu__test_buffer(out);
         } break;
+        case 'T': {
+            animation.menu__time_meassurements(out);
+        } break;
         case 'p': {
             animation.menu__set_pixel(out, command);
         } break;
@@ -320,13 +344,13 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println();
         } break;
         case 'z': {
-            out.println(F("Set all Pixel to 21845."));
-            animation.tlc.set_pixel_all_16bit_value(21845, 21845, 21845);
-            out.println();
-        } break;
-        case 'b': {
             out.println(F("Set all Pixel to black."));
             animation.tlc.set_pixel_all_16bit_value(0, 0, 0);
+            out.println();
+        } break;
+        case 'Z': {
+            out.println(F("Set all Pixel to 21845."));
+            animation.tlc.set_pixel_all_16bit_value(21845, 21845, 21845);
             out.println();
         } break;
         case 'B': {
