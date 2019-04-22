@@ -9,11 +9,11 @@ the CP version is working fine but slow.
 the C++ version is fast / smooth :-)
 i try and keep theme functional similar.
 
+you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
 <video
 src="http://s-light.eu/video/VID_20190422_190246.webm"
 style="max-width:100vw; max-height:100vh;"
-controls=""
-loop=""></video>
+controls="" loop=""></video>
 
 
 
