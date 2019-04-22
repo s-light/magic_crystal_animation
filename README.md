@@ -5,8 +5,8 @@ there are two versions:
 - CircuitPython [src/](src/)
 - Arduino [src_arduino/](src_arduino/)
 
-the CP version is working fine but slow.
-the C++ version is fast / smooth :-)
+the CP version is working fine but slow.  
+the C++ version is fast / smooth :-)  
 i try and keep theme functional similar.
 
 you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
@@ -19,10 +19,12 @@ controls="" loop=""></video>
 
 ## animation
 
-sparkling effect with some options:
-- base color
-- sparkling brightness
-- total brightness
+'plasma' effect  
+options:
+- base hue
+- contrast
+- brightness
+
 
 ## hardware
 
@@ -30,6 +32,3 @@ Controller: Adafruit ItsyBitsy M4
 
 [LEDBoard_4x4_HD](https://github.com/s-light/LEDBoard_4x4_HD)  
 with controller TLC5957
-
-ambient light sensor: ?
-remote control: ?
