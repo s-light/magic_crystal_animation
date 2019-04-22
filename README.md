@@ -5,10 +5,16 @@ there are two versions:
 - CircuitPython [src/](src/)
 - Arduino [src_arduino/](src_arduino/)
 
-currently the CP version is working fine but slow.
-therefore the port to C++.
+the CP version is working fine but slow.
+the C++ version is fast / smooth :-)
+i try and keep theme functional similar.
 
-if the porting is finished i try and keep theme functional similar.
+<video
+src="http://s-light.eu/video/VID_20190422_190246.webm"
+style="max-width:100vw; max-height:100vh;"
+controls=""
+loop=""></video>
+
 
 
 ## animation
