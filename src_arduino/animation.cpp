@@ -597,8 +597,8 @@ void MC_Animation::calculate_effect_position() {
     effect_loopcount++;
     if (effect_position >  1.0) {
         effect_position = 0;
-        uint16_t duration_seconds = (millis() - effect_start) / 1000;
-        uint32_t fps = duration_seconds;
+        float duration_seconds = (millis() - effect_start) / 1000.0;
+        float fps = effect_loopcount / duration_seconds;
         effect_loopcount = 0;
         effect_start = millis();
         effect_end = millis() + effect_duration;

@@ -23,6 +23,7 @@ controls="" loop=""></video>
 
 'plasma' effect  
 options:
+- duration
 - base hue
 - contrast
 - brightness
