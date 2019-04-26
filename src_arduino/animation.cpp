@@ -176,7 +176,7 @@ void MC_Animation::menu__time_meassurements(Print &out) {
 
     for (size_t i = 0; i < tm_loop_count; i++) {
         tm_start = millis();
-        effect__plasma();
+        effect_Matrix2D();
         tlc.show();
         tm_end = millis();
         tm_duration += (tm_end - tm_start);
@@ -327,7 +327,9 @@ void MC_Animation::print_tlc_buffer(Print &out) {
 void MC_Animation::gsclock_init(Print &out) {
     out.println(F("init gsclock:")); {
         out.println(F("  init gsclock timer."));
-        setup_D9_10MHz();
+        setup_GenericClock7();
+        // setup_D9_10MHz();
+        setup_D2_10MHz();
         // out.println(F("  set gsclock to 3MHz."));
         // gsclock_set_frequency_MHz(3.0);
         out.println(F("  set gsclock to 30MHz."));
@@ -336,11 +338,8 @@ void MC_Animation::gsclock_init(Print &out) {
     out.println(F("  finished."));
 }
 
-void MC_Animation::setup_D9_10MHz() {
-    // Activate timer TC3
-    // CLK_TC3_APB
-    MCLK->APBBMASK.reg |= MCLK_APBBMASK_TC3;
 
+void MC_Animation::setup_GenericClock7() {
     // Set up the generic clock (GCLK7)
     GCLK->GENCTRL[7].reg =
         // Divide clock source by divisor 1
@@ -349,17 +348,33 @@ void MC_Animation::setup_D9_10MHz() {
         GCLK_GENCTRL_IDC |
         // Enable GCLK7
         GCLK_GENCTRL_GENEN |
+        // // Select 48MHz DFLL clock source
+        // GCLK_GENCTRL_SRC_DFLL;
+        // // Select 100MHz DPLL clock source
+        // GCLK_GENCTRL_SRC_DPLL1;
         // Select 120MHz DPLL clock source
         GCLK_GENCTRL_SRC_DPLL0;
     // Wait for synchronization
     while (GCLK->SYNCBUSY.bit.GENCTRL7) {}
+}
 
-    // for PCHCTRL numbers have a look at Table 14-9. PCHCTRLm Mapping page168ff
+
+void MC_Animation::setup_D9_10MHz() {
+    // Activate timer TC3
+    // check for correct mask at MCLK – Main Clock - 15.7 Register Summary
+    // page178f
+    // http://ww1.microchip.com/downloads/en/DeviceDoc/60001507C.pdf#page=178&zoom=page-width,-8,539
+    // CLK_TC3_APB
+    MCLK->APBBMASK.reg |= MCLK_APBBMASK_TC3;
+
+    // for PCHCTRL numbers have a look at
+    // Table 14-9. PCHCTRLm Mapping page168ff
     // http://ww1.microchip.com/downloads/en/DeviceDoc/60001507C.pdf#page=169&zoom=page-width,-8,696
+    // GCLK->PCHCTRL[GCLK_TC3].reg =
     GCLK->PCHCTRL[26].reg =
-        // Enable the TC3 peripheral channel
+        // Enable the peripheral channel
         GCLK_PCHCTRL_CHEN |
-        // Connect generic clock 7 to TC3
+        // Connect generic clock 7
         GCLK_PCHCTRL_GEN_GCLK7;
 
     // Enable the peripheral multiplexer on pin D9
@@ -428,6 +443,110 @@ void MC_Animation::setup_D9_10MHz() {
     while (TC3->COUNT8.SYNCBUSY.bit.ENABLE) {}
 }
 
+void MC_Animation::set_D9_period_reg(uint8_t period_reg) {
+    TC3->COUNT8.CC[0].reg = period_reg;
+    while (TC3->COUNT8.SYNCBUSY.bit.CC1) {}
+}
+
+uint8_t MC_Animation::get_D9_period_reg() {
+    return TC3->COUNT8.CC[0].reg;
+}
+
+void MC_Animation::setup_D2_10MHz() {
+    // Activate timer TC1
+    // check for correct mask at MCLK – Main Clock - 15.7 Register Summary
+    // page178f
+    // http://ww1.microchip.com/downloads/en/DeviceDoc/60001507C.pdf#page=178&zoom=page-width,-8,539
+    // CLK_TC1_APB
+    MCLK->APBAMASK.reg |= MCLK_APBAMASK_TC1;
+
+    // for PCHCTRL numbers have a look at
+    // Table 14-9. PCHCTRLm Mapping page168ff
+    // http://ww1.microchip.com/downloads/en/DeviceDoc/60001507C.pdf#page=169&zoom=page-width,-8,696
+    // GCLK->PCHCTRL[GCLK_TC1].reg =
+    GCLK->PCHCTRL[9].reg =
+        // Enable the peripheral channel
+        GCLK_PCHCTRL_CHEN |
+        // Connect generic clock 7
+        GCLK_PCHCTRL_GEN_GCLK7;
+
+    // Enable the peripheral multiplexer on pin D2
+    PORT->Group[g_APinDescription[2].ulPort].
+        PINCFG[g_APinDescription[2].ulPin].bit.PMUXEN = 1;
+
+    // Set the D2 (PORT_PA07) peripheral multiplexer to
+    // peripheral (odd port number) E(6): TC1, Channel 1
+    // check if you need even or odd PMUX!!!
+    // http://forum.arduino.cc/index.php?topic=589655.msg4064311#msg4064311
+    PORT->Group[g_APinDescription[2].ulPort].
+        PMUX[g_APinDescription[2].ulPin >> 1].reg |= PORT_PMUX_PMUXO(4);
+
+    TC1->COUNT8.CTRLA.reg =
+        // Set prescaler to 2
+        // 120MHz/2 = 60MHz
+        TC_CTRLA_PRESCALER_DIV2 |
+        // Set the reset/reload to trigger on prescaler clock
+        TC_CTRLA_PRESCSYNC_PRESC;
+
+    // Set-up TC1 timer for
+    // Match Frequency Generation (MFRQ)
+    // the period time (T) is controlled by the CC0 register.
+    // (instead of PER or MAX)
+    // WO[0] toggles on each Update condition.
+    TC1->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
+    // Wait for synchronization
+    // while (TC1->COUNT8.SYNCBUSY.bit.WAVE)
+
+    // Set-up the CC (counter compare), channel 0 register
+    // this sets the period
+    //
+    // (clockfreq / 2) / (CC0 + 1)  = outfreq  | * (CC0 + 1)
+    // (clockfreq / 2) = outfreq * (CC0 + 1)   | / outfreq
+    // (clockfreq / 2) / outfreq  = CC0 + 1    | -1
+    // ((clockfreq / 2) / outfreq) -1  = CC0
+    //
+    // ((60 / 2) / 2) -1  = CC0
+    //
+    // MAX: (60MHz / 2) / (0 + 1)  = 30MHz
+    // MIN: (60MHz / 2) / (255 + 1)  = 0,117MHz = 117kHz
+    //
+    //       60.0MHz
+    //   0 = 30.0MHz
+    //   1 = 15.0MHz
+    //   2 = 10.0MHz
+    //   3 =  7.5MHz
+    //   4 =  6.0MHz
+    //   5 =  5.0MHz
+    //   9 =  3.0MHz
+    //  14 =  2.0MHz
+    //  29 =  1.0MHz
+    //  59 =  0.5MHz
+    //  74 =  0.4MHz
+    //  99 =  0.3MHz
+    // 149 =  0.2MHz
+    // 255 =  0.11MHz
+    // start with 10MHz
+    TC1->COUNT8.CC[0].reg = 2;
+    // Wait for synchronization
+    while (TC1->COUNT8.SYNCBUSY.bit.CC1) {}
+
+    // Enable timer TC1
+    TC1->COUNT8.CTRLA.bit.ENABLE = 1;
+    // Wait for synchronization
+    while (TC1->COUNT8.SYNCBUSY.bit.ENABLE) {}
+}
+
+void MC_Animation::set_D2_period_reg(uint8_t period_reg) {
+    TC1->COUNT8.CC[0].reg = period_reg;
+    while (TC1->COUNT8.SYNCBUSY.bit.CC1) {}
+}
+
+uint8_t MC_Animation::get_D2_period_reg() {
+    return TC1->COUNT8.CC[0].reg;
+}
+
+
+
 float MC_Animation::gsclock_set_frequency_MHz(float frequency_MHz) {
     const float frequency_MHz_min = 0.117;
     const float frequency_MHz_max = 30.0;
@@ -442,27 +561,19 @@ float MC_Animation::gsclock_set_frequency_MHz(float frequency_MHz) {
     uint8_t period_reg = 29;
     float req_raw = ((60 / 2) / frequency_MHz) -1;
     period_reg = static_cast<int>(req_raw);
-    set_D9_period_reg(period_reg);
+    // set_D9_period_reg(period_reg);
+    set_D2_period_reg(period_reg);
     // calculate actual used frequency
     frequency_MHz_result = (60.0 / 2) / (period_reg + 1);
     return frequency_MHz_result;
 }
 
 float MC_Animation::gsclock_get_frequency_MHz() {
-    uint8_t period_reg = get_D9_period_reg();
+    // uint8_t period_reg = get_D9_period_reg();
+    uint8_t period_reg = get_D2_period_reg();
     float frequency_MHz_result = (60.0 / 2) / (period_reg + 1);
     return frequency_MHz_result;
 }
-
-void MC_Animation::set_D9_period_reg(uint8_t period_reg) {
-    TC3->COUNT8.CC[0].reg = period_reg;
-    while (TC3->COUNT8.SYNCBUSY.bit.CC1) {}
-}
-
-uint8_t MC_Animation::get_D9_period_reg() {
-    return TC3->COUNT8.CC[0].reg;
-}
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // pixel map
@@ -585,7 +696,8 @@ void MC_Animation::animation_update() {
         // effect__pixel_checker();
         // effect__line();
         // effect__rainbow();
-        effect__plasma();
+
+        effect_Matrix2D();
 
         // write data to chips
         tlc.show();
@@ -646,9 +758,12 @@ void MC_Animation::effect__rainbow() {
 
 
 
-CHSV MC_Animation::effect__plasma_get_pixelcolor(
+CHSV MC_Animation::effect__plasma(
     float col, float row, float offset
 ) {
+    // calculate plasma
+    // mostly inspired by
+    // https://www.bidouille.org/prog/plasma
     // moving rings
     float cx = col + 0.5 * sin(offset / 5);
     float cy = row + 0.5 * cos(offset / 3);
@@ -681,33 +796,62 @@ CHSV MC_Animation::effect__plasma_get_pixelcolor(
     return pixel_hsv;
 }
 
-void MC_Animation::effect__plasma() {
+CHSV MC_Animation::effect__sparkle(
+    float col, float row, float offset
+) {
+    CHSV pixel_hsv = CHSV(0.5, 1.0, 0.0);
+    return pixel_hsv;
+}
+
+
+CHSV MC_Animation::effect_Matrix2D_get_pixel(
+    float col, float row, float offset
+) {
+    CHSV pixel_hsv = CHSV(0.5, 0.0, 1.0);
+
+    // plasma
+    CHSV plasma = effect__plasma(col, row, offset);
+    pixel_hsv = plasma;
+
+    // sparkle
+    CHSV sparkle = effect__sparkle(
+        col, row, offset);
+    // not used currently..
+
+    // TODO(s-light): develop 'layer' / 'multiplyer' system...
+
+    return pixel_hsv;
+}
+
+void MC_Animation::effect_Matrix2D() {
     float offset = map_range_01_to(effect_position, 0.0, (PI * 30));
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
+        // normalize row
+        float row = map_range(
+            row_i,
+            0, MATRIX_ROW_COUNT-1,
+            -0.5, 0.5);
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
-            // calculate plasma
-            // mostly inspired by
-            // https://www.bidouille.org/prog/plasma
+            // normalize col
             float col = map_range(
                 col_i,
                 0, MATRIX_COL_COUNT-1,
-                -0.5, 0.5
-            );
-            float row = map_range(
-                row_i,
-                0, MATRIX_ROW_COUNT-1,
-                -0.5, 0.5
-            );
-            CHSV pixel_hsv = effect__plasma_get_pixelcolor(col, row, offset);
-            // handle global brightness
+                -0.5, 0.5);
+
+            // ------------------------------------------
+            CHSV pixel_hsv = effect_Matrix2D_get_pixel(col, row, offset);
+
+            // ------------------------------------------
+            // final conversions
+            // global brightness
             pixel_hsv.value *= brightness;
+            // convert to rgb
             CRGB pixel_rgb = hsv2rgb(pixel_hsv);
-            // handle gamma and global brightness
+            // gamma & global brightness
             // fancyled.gamma_adjust(brightness=self.brightness);
             tlc.set_pixel_float_value(
                 pmap[row_i][col_i],
-                pixel_rgb.r, pixel_rgb.g, pixel_rgb.b
-            );
+                pixel_rgb.r, pixel_rgb.g, pixel_rgb.b);
         }
     }
 }

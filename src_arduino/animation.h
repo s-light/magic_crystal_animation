@@ -181,8 +181,11 @@ private:
     void effect__pixel_checker();
     void effect__line();
     void effect__rainbow();
-    void effect__plasma();
-    CHSV effect__plasma_get_pixelcolor(float col, float row, float offset);
+
+    void effect_Matrix2D();
+    CHSV effect_Matrix2D_get_pixel(float col, float row, float offset);
+    CHSV effect__plasma(float col, float row, float offset);
+    CHSV effect__sparkle(float col, float row, float offset);
 
     // others
     void pmap_init();
@@ -192,10 +195,18 @@ private:
 
     void tlc_init(Stream &out);
 
+    // grayscale clock things
     void gsclock_init(Print &out);
+
+    void setup_GenericClock7();
+
     void setup_D9_10MHz();
     void set_D9_period_reg(uint8_t period_reg);
     uint8_t get_D9_period_reg();
+
+    void setup_D2_10MHz();
+    void set_D2_period_reg(uint8_t period_reg);
+    uint8_t get_D2_period_reg();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes
