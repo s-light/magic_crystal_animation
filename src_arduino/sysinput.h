@@ -44,8 +44,8 @@ SOFTWARE.
 
 
 
-#ifndef SensorInput_H_
-#define SensorInput_H_
+#ifndef SRC_ARDUINO_SYSINPUT_H_
+#define SRC_ARDUINO_SYSINPUT_H_
 
 // include Core Arduino functionality
 #include <Arduino.h>
@@ -59,23 +59,24 @@ SOFTWARE.
 #include <slight_ButtonInput.h>
 
 
-
-class SensorInput {
-public:
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // structs
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //
-    static const BUTTON_PIN = A2;
-    static const BUTTON_PIN_GND = A3;
-
+class MC_Input {
+ public:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // constructor
 
-    SensorInput();
-    ~SensorInput();
+    MC_Input();
+    ~MC_Input();
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // basic library api
+    void begin(Stream &out);
+    void update();
+    void end();
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // CONST
+    static const uint8_t BUTTON_PIN = A2;
+    static const uint8_t BUTTON_PIN_GND = A3;
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,13 +103,9 @@ public:
     //      500
     // );
 
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // public functions
-
-    // basic library api
-    void begin(Stream &out);
-    void update();
-    void end();
 
     // menu & helper
     void menu__test_xxx(Print &out);
@@ -116,18 +113,17 @@ public:
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // helper
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // configurations
 
     bool ambientlight_run = true;
 
-    uint16_t filter_duration = 20 * 1000; //ms
+    uint16_t filter_duration = 20 * 1000;  // ms
     float light_event_threshold = 0.1;
 
-private:
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // helper
 
+ private:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // private functions
 
@@ -135,15 +131,16 @@ private:
     void light_init(Stream &out);
     void light_update();
 
-    // button input
+    // // button input
     void button_init(Stream &out);
     bool button_getinput(byte id, byte pin);
-    void button_event(slight_ButtonInput *instance, byte event) {
+    // void button_event(slight_ButtonInput *instance, byte event) {
     // slight_ButtonInput::CbfuncGetInput button_getinput;
-    // slight_ButtonInput::tcbfOnEvent button_event;
+    const slight_ButtonInput::tcbfOnEvent *button_event;
+
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // attributes
+    // internal attributes
     bool ready;
 
     uint32_t light_start = 0;
@@ -151,6 +148,6 @@ private:
     uint32_t light_loopcount = 0;
     float effect_position = 0.0;
 
-};  // class SensorInput
+};  // class MC_Input
 
-#endif  // SensorInput_H_
+#endif  // SRC_ARDUINO_SYSINPUT_H_

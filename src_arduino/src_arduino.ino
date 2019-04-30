@@ -18,6 +18,7 @@
 
     libraries used:
         ~ slight_DebugMenu
+        ~ slight_ButtonInput
         ~ slight_TLC5957
             written by stefan krueger (s-light),
                 github@s-light.eu, http://s-light.eu, https://github.com/s-light/
@@ -62,7 +63,8 @@
 #include <slight_DebugMenu.h>
 
 #include "animation.h"
-// #include "sensors.h"
+#include "sysinput.h"
+#include <slight_ButtonInput.h>
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Info
@@ -149,9 +151,11 @@ boolean debugOut_LiveSign_LED_Enabled = 1;
 slight_DebugMenu myDebugMenu(Serial, Serial, 20);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Animation
+// Sub-Parts
 
 MC_Animation animation = MC_Animation();
+
+MC_Input myinput = MC_Input();
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -380,6 +384,54 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
 }
 
 
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Subparts things
+
+void button_event(slight_ButtonInput *instance, byte event) {
+    // Serial.print(F("Instance ID:"));
+    // Serial.println((*instance).getID());
+
+    Serial.print(F("Event: "));
+    (*instance).printEvent(Serial, event);
+    Serial.println();
+
+    // show event additional infos:
+    switch (event) {
+        // case slight_ButtonInput::event_StateChanged : {
+        //     Serial.print(F("\t state: "));
+        //     (*instance).printState(Serial);
+        //     Serial.println();
+        // } break;
+        // click
+        // case slight_ButtonInput::event_Down : {
+        //     Serial.print(F("the button is pressed down! do something.."));
+        // } break;
+        case slight_ButtonInput::event_HoldingDown : {
+            Serial.print(F("duration active: "));
+            Serial.println((*instance).getDurationActive());
+        } break;
+        // case slight_ButtonInput::event_Up : {
+        //     Serial.print(F("up"));
+        // } break;
+        case slight_ButtonInput::event_Click : {
+            Serial.print(F("click"));
+        } break;
+        // case slight_ButtonInput::event_ClickLong : {
+        //     Serial.print(F("click long"));
+        // } break;
+        case slight_ButtonInput::event_ClickDouble : {
+            Serial.print(F("click double"));
+        } break;
+        // case slight_ButtonInput::event_ClickTriple : {
+        //     Serial.print(F("click triple"));
+        // } break;
+        case slight_ButtonInput::event_ClickMulti : {
+            Serial.print(F("click count: "));
+            Serial.println((*instance).getClickCount());
+        } break;
+    }  // end switch
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // setup
