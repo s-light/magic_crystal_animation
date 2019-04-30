@@ -44,7 +44,7 @@ SOFTWARE.
 
 
 // include own headerfile
-#include "./sysinput.h"
+#include "./mc_input.h"
 
 // include Core Arduino functionality
 #include <Arduino.h>

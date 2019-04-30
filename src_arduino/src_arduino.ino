@@ -63,7 +63,7 @@
 #include <slight_DebugMenu.h>
 
 #include "animation.h"
-#include "sysinput.h"
+#include "mc_input.h"
 #include <slight_ButtonInput.h>
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

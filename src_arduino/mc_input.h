@@ -44,8 +44,8 @@ SOFTWARE.
 
 
 
-#ifndef SRC_ARDUINO_SYSINPUT_H_
-#define SRC_ARDUINO_SYSINPUT_H_
+#ifndef SRC_ARDUINO_MC_INPUT_H_
+#define SRC_ARDUINO_MC_INPUT_H_
 
 // include Core Arduino functionality
 #include <Arduino.h>
@@ -150,4 +150,4 @@ class MC_Input {
 
 };  // class MC_Input
 
-#endif  // SRC_ARDUINO_SYSINPUT_H_
+#endif  // SRC_ARDUINO_MC_INPUT_H_
