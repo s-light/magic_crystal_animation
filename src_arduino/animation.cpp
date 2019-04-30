@@ -10,6 +10,7 @@
 
     libraries used:
         ~ slight_DebugMenu
+        ~ slight_FaderLin
         ~ slight_TLC5957
             written by stefan krueger (s-light),
                 github@s-light.eu, http://s-light.eu, https://github.com/s-light/
@@ -48,6 +49,7 @@ SOFTWARE.
 #include <Arduino.h>
 
 #include <slight_DebugMenu.h>
+#include <slight_FaderLin.h>
 
 #include <SPI.h>
 #include <slight_TLC5957.h>
@@ -80,8 +82,8 @@ void MC_Animation::begin(Stream &out) {
     if (ready == false) {
         // setup
         tlc_init(out);
-        gsclock_init(Serial);
-        animation_init(Serial);
+        gsclock_init(out);
+        animation_init(out);
 
         // enable
         ready = true;
