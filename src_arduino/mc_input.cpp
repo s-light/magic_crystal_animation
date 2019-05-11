@@ -61,7 +61,14 @@ SOFTWARE.
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // functions
 
-MC_Input::MC_Input() {
+// MC_Input::MC_Input(button):
+// ) {
+// MC_Input::MC_Input() {
+MC_Input::MC_Input(
+    const slight_ButtonInput::tcbfOnEvent button_event_func
+): button_event_func(button_event_func) {
+// ): button_event_func(button_event_func),
+//    button_getinput_func(button_getinput) {
     ready = false;
 }
 
@@ -76,9 +83,10 @@ void MC_Input::begin(Stream &out) {
     if (ready == false) {
         // setup
         light_init(out);
-
+        button_init(out);
         // enable
         ready = true;
+        out.println("MC_Input.begin ready = true");
     }
 }
 
@@ -92,6 +100,10 @@ void MC_Input::update() {
     if (ready) {
         // do it :-)
         light_update();
+        // Serial.println("button.");
+        // mybutton.update();
+        // Serial.println("update.");
+        // delay(100);
     }
 }
 
@@ -156,14 +168,12 @@ void MC_Input::light_update() {
 
 void MC_Input::button_init(Stream &out) {
     out.println(F("setup button input:"));
-    out.println(F("TODO"));
 
-    // out.println(F("  tlc.begin()"));
-    // mybutton.begin();
+    out.println(F("  set pinMode INPUT_PULLUP"));
+    pinMode(mybutton.getPin(), INPUT_PULLUP);
+    out.println(F("  mybutton.begin()"));
+    mybutton.begin();
 
-    // out.print(F("  tlc.get_fc_ESPWM(): "));
-    // out.print(tlc.get_fc_ESPWM());
-    // out.println();
     out.println(F("  finished."));
 }
 

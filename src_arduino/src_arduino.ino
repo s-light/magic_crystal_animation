@@ -138,11 +138,11 @@ void sketchinfo_print(Print &out) {
 boolean infoled_state = 0;
 const byte infoled_pin = 13;
 
-unsigned long debugOut_LiveSign_TimeStamp_LastAction = 0;
-const uint16_t debugOut_LiveSign_UpdateInterval = 1000; //ms
+uint32_t debugOut_LastAction = 0;
+const uint16_t debugOut_interval = 1000; //ms
 
-boolean debugOut_LiveSign_Serial_Enabled = 0;
-boolean debugOut_LiveSign_LED_Enabled = 1;
+boolean debugOut_Serial_Enabled = 0;
+boolean debugOut_LED_Enabled = 1;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Menu
@@ -155,7 +155,8 @@ slight_DebugMenu myDebugMenu(Serial, Serial, 20);
 
 MC_Animation animation = MC_Animation();
 
-MC_Input myinput = MC_Input();
+// MC_Input myinput = MC_Input();
+MC_Input myinput = MC_Input(button_event);
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,19 +167,17 @@ MC_Input myinput = MC_Input();
 // debug things
 
 void debugOut_update() {
-    if (
-        (millis() - debugOut_LiveSign_TimeStamp_LastAction) >
-        debugOut_LiveSign_UpdateInterval
-    ) {
-        debugOut_LiveSign_TimeStamp_LastAction = millis();
+    uint32_t duration_temp = millis() - debugOut_LastAction;
+    if (duration_temp > debugOut_interval) {
+        debugOut_LastAction = millis();
 
-        if ( debugOut_LiveSign_Serial_Enabled ) {
+        if ( debugOut_Serial_Enabled ) {
             Serial.print(millis());
             Serial.print(F("ms;"));
             Serial.println();
         }
 
-        if ( debugOut_LiveSign_LED_Enabled ) {
+        if ( debugOut_LED_Enabled ) {
             infoled_state = ! infoled_state;
             if (infoled_state) {
                 //set LED to HIGH
@@ -265,15 +264,15 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         } break;
         case 'y': {
             out.println(F("\t toggle DebugOut livesign Serial:"));
-            debugOut_LiveSign_Serial_Enabled = !debugOut_LiveSign_Serial_Enabled;
-            out.print(F("\t debugOut_LiveSign_Serial_Enabled:"));
-            out.println(debugOut_LiveSign_Serial_Enabled);
+            debugOut_Serial_Enabled = !debugOut_Serial_Enabled;
+            out.print(F("\t debugOut_Serial_Enabled:"));
+            out.println(debugOut_Serial_Enabled);
         } break;
         case 'Y': {
             out.println(F("\t toggle DebugOut livesign LED:"));
-            debugOut_LiveSign_LED_Enabled = !debugOut_LiveSign_LED_Enabled;
-            out.print(F("\t debugOut_LiveSign_LED_Enabled:"));
-            out.println(debugOut_LiveSign_LED_Enabled);
+            debugOut_LED_Enabled = !debugOut_LED_Enabled;
+            out.print(F("\t debugOut_LED_Enabled:"));
+            out.println(debugOut_LED_Enabled);
         } break;
         case 'x': {
             // get state
@@ -398,38 +397,38 @@ void button_event(slight_ButtonInput *instance, byte event) {
 
     // show event additional infos:
     switch (event) {
-        // case slight_ButtonInput::event_StateChanged : {
+        // case slight_ButtonInput::event_statechanged : {
         //     Serial.print(F("\t state: "));
         //     (*instance).printState(Serial);
         //     Serial.println();
         // } break;
         // click
-        // case slight_ButtonInput::event_Down : {
+        // case slight_ButtonInput::event_down : {
         //     Serial.print(F("the button is pressed down! do something.."));
         // } break;
-        case slight_ButtonInput::event_HoldingDown : {
+        case slight_ButtonInput::event_holddown : {
             Serial.print(F("duration active: "));
             Serial.println((*instance).getDurationActive());
         } break;
-        // case slight_ButtonInput::event_Up : {
+        // case slight_ButtonInput::event_up : {
         //     Serial.print(F("up"));
         // } break;
-        case slight_ButtonInput::event_Click : {
+        case slight_ButtonInput::event_click : {
             Serial.print(F("click"));
         } break;
-        // case slight_ButtonInput::event_ClickLong : {
+        // case slight_ButtonInput::event_click_long : {
         //     Serial.print(F("click long"));
         // } break;
-        case slight_ButtonInput::event_ClickDouble : {
+        case slight_ButtonInput::event_click_double : {
             Serial.print(F("click double"));
         } break;
-        // case slight_ButtonInput::event_ClickTriple : {
+        // case slight_ButtonInput::event_click_triple : {
         //     Serial.print(F("click triple"));
         // } break;
-        case slight_ButtonInput::event_ClickMulti : {
-            Serial.print(F("click count: "));
-            Serial.println((*instance).getClickCount());
-        } break;
+        // case slight_ButtonInput::event_click_multi : {
+        //     Serial.print(F("click count: "));
+        //     Serial.println((*instance).getClickCount());
+        // } break;
     }  // end switch
 }
 
@@ -470,9 +469,10 @@ void setup() {
         sketchinfo_print(Serial);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // setup animation
+    // setup sub-Parts
 
         animation.begin(Serial);
+        myinput.begin(Serial);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // show serial commands
@@ -495,8 +495,9 @@ void setup() {
 void loop() {
     myDebugMenu.update();
     animation.update();
+    myinput.update();
     debugOut_update();
-} /** loop **/
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // THE END

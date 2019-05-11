@@ -161,9 +161,9 @@ public:
 
     bool animation_run = true;
 
-    uint16_t effect_duration = 20 * 1000; //ms
+    uint16_t effect_duration = 30 * 1000; //ms
     float hue = 0.55;
-    float contrast = 1.0;
+    float contrast = 1.3;
     float brightness = 0.1;
 
     // const float PI = 3.141592;

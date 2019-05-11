@@ -64,7 +64,8 @@ class MC_Input {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // constructor
 
-    MC_Input();
+    // MC_Input();
+    MC_Input(const slight_ButtonInput::tcbfOnEvent button_event);
     ~MC_Input();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,33 +76,33 @@ class MC_Input {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // CONST
-    static const uint8_t BUTTON_PIN = A2;
-    static const uint8_t BUTTON_PIN_GND = A3;
+    static const uint8_t BUTTON_PIN = A4;
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes & objects
 
-    // slight_ButtonInput mybutton = slight_ButtonInput(
-    //     // byte cbID_New
-    //     42,
-    //     // byte cbPin_New,
-    //     A2,
-    //     // tCbfuncGetInput cbfuncGetInput_New,
-    //     button_getinput,
-    //     // tcbfOnEvent cbfCallbackOnEvent_New,
-    //     button_event,
-    //     // const uint16_t cwDuration_Debounce_New = 30,
-    //       30,
-    //     // const uint16_t cwDuration_HoldingDown_New = 1000,
-    //     1000,
-    //     // const uint16_t cwDuration_ClickSingle_New =   50,
-    //       50,
-    //     // const uint16_t cwDuration_ClickLong_New =   3000,
-    //     3000,
-    //     // const uint16_t cwDuration_ClickDouble_New = 1000
-    //      500
-    // );
+    // slight_ButtonInput mybutton;
+    slight_ButtonInput mybutton = slight_ButtonInput(
+        // byte cbID_New
+        42,
+        // byte cbPin_New,
+        A2,
+        // tCbfuncGetInput cbfuncGetInput_New,
+        button_getinput_func,
+        // tcbfOnEvent cbfCallbackOnEvent_New,
+        button_event_func,
+        // const uint16_t cwDuration_Debounce_New = 30,
+          30,
+        // const uint16_t cwDuration_HoldingDown_New = 1000,
+        1000,
+        // const uint16_t cwDuration_ClickSingle_New =   50,
+          50,
+        // const uint16_t cwDuration_ClickLong_New =   3000,
+        3000,
+        // const uint16_t cwDuration_ClickDouble_New = 1000
+         500
+    );
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,9 +135,9 @@ class MC_Input {
     // // button input
     void button_init(Stream &out);
     bool button_getinput(byte id, byte pin);
-    // void button_event(slight_ButtonInput *instance, byte event) {
-    // slight_ButtonInput::CbfuncGetInput button_getinput;
-    const slight_ButtonInput::tcbfOnEvent *button_event;
+    // void button_event(slight_ButtonInput *instance, byte event);
+    const slight_ButtonInput::tcbfOnEvent button_event_func;
+    slight_ButtonInput::tCbfuncGetInput button_getinput_func;
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
