@@ -163,8 +163,8 @@ public:
 
     uint16_t effect_duration = 30 * 1000; //ms
     float hue = 0.55;
-    float contrast = 1.3;
-    float brightness = 0.1;
+    float contrast = 1.4;
+    float brightness = 0.3;
 
     // const float PI = 3.141592;
     // is already defined by arduino or some other defaults...
