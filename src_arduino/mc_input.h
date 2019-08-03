@@ -64,8 +64,8 @@ class MC_Input {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // constructor
 
-    // MC_Input();
-    MC_Input(const slight_ButtonInput::tcbfOnEvent button_event);
+    MC_Input();
+    // MC_Input(const slight_ButtonInput::tcbfOnEvent button_event);
     ~MC_Input();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,25 +83,26 @@ class MC_Input {
     // attributes & objects
 
     // slight_ButtonInput mybutton;
+    boolean mybutton_get_input(slight_ButtonInput *instance);
+    void mybutton_event(slight_ButtonInput *instance);
+
     slight_ButtonInput mybutton = slight_ButtonInput(
-        // byte cbID_New
-        42,
-        // byte cbPin_New,
+        // uint8_t id_new
+        1,
+        // uint8_t pin_new,
         A2,
-        // tCbfuncGetInput cbfuncGetInput_New,
-        button_getinput_func,
-        // tcbfOnEvent cbfCallbackOnEvent_New,
-        button_event_func,
-        // const uint16_t cwDuration_Debounce_New = 30,
-          30,
-        // const uint16_t cwDuration_HoldingDown_New = 1000,
+        // tCallbackFunctionGetInput callbackGetInput_new,
+        std::bind(&MC_Input::mybutton_get_input, this, std::placeholders::_1),
+        // tCallbackFunction callbackOnEvent_new,
+        std::bind(&MC_Input::mybutton_event, this, std::placeholders::_1),
+        // const uint16_t duration_debounce_new = 20,
+        10,
+        // const uint16_t duration_holddown_new = 1000,
         1000,
-        // const uint16_t cwDuration_ClickSingle_New =   50,
-          50,
-        // const uint16_t cwDuration_ClickLong_New =   3000,
-        3000,
-        // const uint16_t cwDuration_ClickDouble_New = 1000
-         500
+        // const uint16_t duration_click_long_new =   3000,
+        2000,
+        // const uint16_t duration_click_double_new = 250
+        250
     );
 
 
@@ -134,11 +135,6 @@ class MC_Input {
 
     // // button input
     void button_init(Stream &out);
-    bool button_getinput(byte id, byte pin);
-    // void button_event(slight_ButtonInput *instance, byte event);
-    const slight_ButtonInput::tcbfOnEvent button_event_func;
-    slight_ButtonInput::tCbfuncGetInput button_getinput_func;
-
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // internal attributes
