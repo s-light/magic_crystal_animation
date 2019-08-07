@@ -52,14 +52,12 @@ SOFTWARE.
 
 #include <slight_DebugMenu.h>
 
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include "Adafruit_TSL2591.h"
 #include <Adafruit_DotStar.h>
 
 #include <slight_ButtonInput.h>
 
 #include "./animation.h"
+#include "./tsl2591auto.h"
 
 
 class MyInput {
@@ -111,6 +109,8 @@ class MyInput {
         250
     );
 
+    slight_TSL2591Auto als = slight_TSL2591Auto();
+
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // public functions
@@ -135,7 +135,6 @@ class MyInput {
     MyAnimation &animation;
 
     // ambientlight sensor
-    void light_init(Stream &out);
     void light_update();
 
     // // button input

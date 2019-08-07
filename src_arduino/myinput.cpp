@@ -100,7 +100,7 @@ void MyInput::begin(Stream &out) {
         board_dotstar.begin();
         board_dotstar.setPixelColor(0, board_dotstar_active_color);
         board_dotstar.show();
-        light_init(out);
+        als.begin(out);
         button_init(out);
         // out.println("  myencoder.begin");
         // myencoder.begin(funcISR);
@@ -165,22 +165,8 @@ void MyInput::menu__set_yyy(Print &out, char *command) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ambientlight sensor
 
-void MyInput::light_init(Stream &out) {
-    out.println(F("setup ambientlight sensor:"));
-    out.println(F("TODO"));
-    // TODO(s-light): implement
-
-    // out.println(F("  tlc.begin()"));
-    // tlc.begin();
-
-    // out.print(F("  tlc.get_fc_ESPWM(): "));
-    // out.print(tlc.get_fc_ESPWM());
-    // out.println();
-    out.println(F("  finished."));
-}
-
 void MyInput::light_update() {
-    // TODO(s-light): implement
+    als.update();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
