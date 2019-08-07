@@ -63,22 +63,22 @@ SOFTWARE.
 #include "./color.h"
 #include "./mapping.h"
 
-// namespace MCAnim = MC_Animation;
+// namespace MCAnim = MyAnimation;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // functions
 
 
-MC_Animation::MC_Animation() {
+MyAnimation::MyAnimation() {
     ready = false;
     pmap_init();
 }
 
-MC_Animation::~MC_Animation() {
+MyAnimation::~MyAnimation() {
     end();
 }
 
-void MC_Animation::begin(Stream &out) {
+void MyAnimation::begin(Stream &out) {
     // clean up..
     end();
     // start up...
@@ -93,13 +93,13 @@ void MC_Animation::begin(Stream &out) {
     }
 }
 
-void MC_Animation::end() {
+void MyAnimation::end() {
     if (ready) {
         // nothing to do..
     }
 }
 
-void MC_Animation::update() {
+void MyAnimation::update() {
     if (ready) {
         animation_update();
     }
@@ -110,7 +110,7 @@ void MC_Animation::update() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // menu
 
-void MC_Animation::menu__test_buffer(Print &out) {
+void MyAnimation::menu__test_buffer(Print &out) {
     out.println(F("SetBuffer:"));
     out.println(F("--- old"));
     print_tlc_buffer(out);
@@ -152,7 +152,7 @@ void MC_Animation::menu__test_buffer(Print &out) {
     out.println();
 }
 
-void MC_Animation::menu__set_pixel(Print &out, char *command) {
+void MyAnimation::menu__set_pixel(Print &out, char *command) {
     out.print(F("Set pixel "));
     uint8_t command_offset = 1;
     uint8_t index = atoi(&command[command_offset]);
@@ -171,7 +171,7 @@ void MC_Animation::menu__set_pixel(Print &out, char *command) {
     out.println();
 }
 
-void MC_Animation::menu__time_meassurements(Print &out) {
+void MyAnimation::menu__time_meassurements(Print &out) {
     out.println(F("time_meassurements:"));
 
     uint32_t tm_start = 0;
@@ -193,7 +193,7 @@ void MC_Animation::menu__time_meassurements(Print &out) {
 }
 
 
-void MC_Animation::menu__set_hue(Print &out, char *command) {
+void MyAnimation::menu__set_hue(Print &out, char *command) {
     out.print(F("Set hue "));
     uint8_t command_offset = 1;
     float value = atof(&command[command_offset]);
@@ -202,7 +202,7 @@ void MC_Animation::menu__set_hue(Print &out, char *command) {
     out.println();
 }
 
-void MC_Animation::menu__set_contrast(Print &out, char *command) {
+void MyAnimation::menu__set_contrast(Print &out, char *command) {
     out.print(F("Set contrast "));
     uint8_t command_offset = 1;
     float value = atof(&command[command_offset]);
@@ -211,7 +211,7 @@ void MC_Animation::menu__set_contrast(Print &out, char *command) {
     out.println();
 }
 
-void MC_Animation::menu__set_brightness(Print &out, char *command) {
+void MyAnimation::menu__set_brightness(Print &out, char *command) {
     out.print(F("Set brightness "));
     uint8_t command_offset = 1;
     float value = atof(&command[command_offset]);
@@ -224,7 +224,7 @@ void MC_Animation::menu__set_brightness(Print &out, char *command) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TLC5957 / LED-Driver
 
-void MC_Animation::tlc_init(Stream &out) {
+void MyAnimation::tlc_init(Stream &out) {
     out.println(F("setup tlc:"));
 
     tlc.print_buffer_fc(out);
@@ -273,7 +273,7 @@ void MC_Animation::tlc_init(Stream &out) {
     out.println(F("  finished."));
 }
 
-void MC_Animation::print_tlc_buffer(Print &out) {
+void MyAnimation::print_tlc_buffer(Print &out) {
     uint8_t *buffer = tlc.buffer;
     // uint16_t *buffer16 = reinterpret_cast<uint16_t *>(tlc.buffer);
     char color_names[][6] = {
@@ -329,7 +329,7 @@ void MC_Animation::print_tlc_buffer(Print &out) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // gsclock
 
-void MC_Animation::gsclock_init(Print &out) {
+void MyAnimation::gsclock_init(Print &out) {
     out.println(F("init gsclock:")); {
         out.println(F("  init gsclock timer."));
         setup_GenericClock7();
@@ -344,7 +344,7 @@ void MC_Animation::gsclock_init(Print &out) {
 }
 
 
-void MC_Animation::setup_GenericClock7() {
+void MyAnimation::setup_GenericClock7() {
     // Set up the generic clock (GCLK7)
     GCLK->GENCTRL[7].reg =
         // Divide clock source by divisor 1
@@ -364,7 +364,7 @@ void MC_Animation::setup_GenericClock7() {
 }
 
 
-void MC_Animation::setup_D9_10MHz() {
+void MyAnimation::setup_D9_10MHz() {
     // Activate timer TC3
     // check for correct mask at MCLK – Main Clock - 15.7 Register Summary
     // page178f
@@ -448,16 +448,16 @@ void MC_Animation::setup_D9_10MHz() {
     while (TC3->COUNT8.SYNCBUSY.bit.ENABLE) {}
 }
 
-void MC_Animation::set_D9_period_reg(uint8_t period_reg) {
+void MyAnimation::set_D9_period_reg(uint8_t period_reg) {
     TC3->COUNT8.CC[0].reg = period_reg;
     while (TC3->COUNT8.SYNCBUSY.bit.CC1) {}
 }
 
-uint8_t MC_Animation::get_D9_period_reg() {
+uint8_t MyAnimation::get_D9_period_reg() {
     return TC3->COUNT8.CC[0].reg;
 }
 
-void MC_Animation::setup_D2_10MHz() {
+void MyAnimation::setup_D2_10MHz() {
     // Activate timer TC1
     // check for correct mask at MCLK – Main Clock - 15.7 Register Summary
     // page178f
@@ -541,18 +541,18 @@ void MC_Animation::setup_D2_10MHz() {
     while (TC1->COUNT8.SYNCBUSY.bit.ENABLE) {}
 }
 
-void MC_Animation::set_D2_period_reg(uint8_t period_reg) {
+void MyAnimation::set_D2_period_reg(uint8_t period_reg) {
     TC1->COUNT8.CC[0].reg = period_reg;
     while (TC1->COUNT8.SYNCBUSY.bit.CC1) {}
 }
 
-uint8_t MC_Animation::get_D2_period_reg() {
+uint8_t MyAnimation::get_D2_period_reg() {
     return TC1->COUNT8.CC[0].reg;
 }
 
 
 
-float MC_Animation::gsclock_set_frequency_MHz(float frequency_MHz) {
+float MyAnimation::gsclock_set_frequency_MHz(float frequency_MHz) {
     const float frequency_MHz_min = 0.117;
     const float frequency_MHz_max = 30.0;
     if (frequency_MHz < frequency_MHz_min) {
@@ -573,7 +573,7 @@ float MC_Animation::gsclock_set_frequency_MHz(float frequency_MHz) {
     return frequency_MHz_result;
 }
 
-float MC_Animation::gsclock_get_frequency_MHz() {
+float MyAnimation::gsclock_get_frequency_MHz() {
     // uint8_t period_reg = get_D9_period_reg();
     uint8_t period_reg = get_D2_period_reg();
     float frequency_MHz_result = (60.0 / 2) / (period_reg + 1);
@@ -593,7 +593,7 @@ float MC_Animation::gsclock_get_frequency_MHz() {
 // }
 
 // Vertical
-const uint8_t MC_Animation::LEDBOARD_SINGLE
+const uint8_t MyAnimation::LEDBOARD_SINGLE
         [LEDBOARD_ROW_COUNT][LEDBOARD_COL_COUNT] = {
     {3, 7, 11, 15},
     {2, 6, 10, 14},
@@ -601,7 +601,7 @@ const uint8_t MC_Animation::LEDBOARD_SINGLE
     {0, 4, 8, 12},
 };
 
-const uint8_t MC_Animation::BOARDS_POSITIONS
+const uint8_t MyAnimation::BOARDS_POSITIONS
         [BOARDS_ROW_COUNT][BOARDS_COL_COUNT] = {
     {2, 3},
     {1, 0},
@@ -610,7 +610,7 @@ const uint8_t MC_Animation::BOARDS_POSITIONS
     // {0},
 };
 
-const uint8_t MC_Animation::LEDBOARDS_ROTATED
+const uint8_t MyAnimation::LEDBOARDS_ROTATED
         [MATRIX_ROW_COUNT][MATRIX_COL_COUNT] = {
     {15, 14, 13, 12,    3,  7, 11, 15},
     {11, 10,  9,  8,    2,  6, 10, 14},
@@ -623,7 +623,7 @@ const uint8_t MC_Animation::LEDBOARDS_ROTATED
     {15, 11,  7,  3,   12, 13, 14, 15},
 };
 
-void MC_Animation::pmap_init() {
+void MyAnimation::pmap_init() {
     // """Prepare Static Map."""
     for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
         for (size_t col_index = 0; col_index < MATRIX_COL_COUNT; col_index++) {
@@ -635,7 +635,7 @@ void MC_Animation::pmap_init() {
     }
 }
 
-uint8_t MC_Animation::mymap_LEDBoard_4x4_HD(
+uint8_t MyAnimation::mymap_LEDBoard_4x4_HD(
     uint8_t col, uint8_t row
 ) {
     // """Map row and col to pixel_index."""
@@ -653,7 +653,7 @@ uint8_t MC_Animation::mymap_LEDBoard_4x4_HD(
     return pixel_index;
 }
 
-uint8_t MC_Animation::mymap_LEDBoard_4x4_HD_CrystalLightGuide(
+uint8_t MyAnimation::mymap_LEDBoard_4x4_HD_CrystalLightGuide(
     uint8_t col, uint8_t row
 ) {
     // """Map row and col to pixel_index."""
@@ -677,7 +677,7 @@ uint8_t MC_Animation::mymap_LEDBoard_4x4_HD_CrystalLightGuide(
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // animation
 
-void MC_Animation::animation_init(Stream &out) {
+void MyAnimation::animation_init(Stream &out) {
     out.println(F("init animation:")); {
         out.print(F("  effect_duration: "));
         out.print(effect_duration);
@@ -695,7 +695,7 @@ void MC_Animation::animation_init(Stream &out) {
     out.println(F("  finished."));
 }
 
-void MC_Animation::animation_update() {
+void MyAnimation::animation_update() {
     calculate_effect_position();
     if (animation_run) {
         // effect__pixel_checker();
@@ -709,7 +709,7 @@ void MC_Animation::animation_update() {
     }
 }
 
-void MC_Animation::calculate_effect_position() {
+void MyAnimation::calculate_effect_position() {
     effect_position = normalize_to_01(millis(), effect_start, effect_end);
     effect_loopcount++;
     if (effect_position >  1.0) {
@@ -730,14 +730,14 @@ void MC_Animation::calculate_effect_position() {
 
 
 
-void MC_Animation::effect__pixel_checker() {
+void MyAnimation::effect__pixel_checker() {
     uint8_t step = map_range_01_to__uint8(
         effect_position, 0, MATRIX_PIXEL_COUNT);
     tlc.set_pixel_all_16bit_value(0, 0, 0);
     tlc.set_pixel_16bit_value(step, 0, 0, 500);
 }
 
-void MC_Animation::effect__line() {
+void MyAnimation::effect__line() {
     uint8_t step = map_range_01_to__uint8(effect_position, 0, MATRIX_COL_COUNT);
     tlc.set_pixel_all_16bit_value(0, 0, 0);
     for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
@@ -745,7 +745,7 @@ void MC_Animation::effect__line() {
     }
 }
 
-void MC_Animation::effect__rainbow() {
+void MyAnimation::effect__rainbow() {
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
             // full rainbow
@@ -763,7 +763,7 @@ void MC_Animation::effect__rainbow() {
 
 
 
-CHSV MC_Animation::effect__plasma(
+CHSV MyAnimation::effect__plasma(
     float col, float row, float offset
 ) {
     // calculate plasma
@@ -797,7 +797,7 @@ CHSV MC_Animation::effect__plasma(
     return pixel_hsv;
 }
 
-CHSV MC_Animation::effect__sparkle(
+CHSV MyAnimation::effect__sparkle(
     float col, float row, float offset
 ) {
     CHSV pixel_hsv = CHSV(0.5, 1.0, 0.0);
@@ -805,7 +805,7 @@ CHSV MC_Animation::effect__sparkle(
 }
 
 
-CHSV MC_Animation::effect_Matrix2D_get_pixel(
+CHSV MyAnimation::effect_Matrix2D_get_pixel(
     float col, float row, float offset
 ) {
     CHSV pixel_hsv = CHSV(0.5, 0.0, 1.0);
@@ -824,7 +824,7 @@ CHSV MC_Animation::effect_Matrix2D_get_pixel(
     return pixel_hsv;
 }
 
-void MC_Animation::effect_Matrix2D() {
+void MyAnimation::effect_Matrix2D() {
     float offset = map_range_01_to(effect_position, 0.0, (PI * 30));
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         // normalize row

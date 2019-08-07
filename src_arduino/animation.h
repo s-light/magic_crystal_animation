@@ -46,8 +46,8 @@ SOFTWARE.
 
 
 
-#ifndef MC_Animation_H_
-#define MC_Animation_H_
+#ifndef MyAnimation_H_
+#define MyAnimation_H_
 
 // include Core Arduino functionality
 #include <Arduino.h>
@@ -60,7 +60,7 @@ SOFTWARE.
 #include "./color.h"
 
 
-class MC_Animation {
+class MyAnimation {
 public:
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,8 +127,8 @@ public:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // constructor
 
-    MC_Animation();
-    ~MC_Animation();
+    MyAnimation();
+    ~MyAnimation();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // public functions
@@ -218,6 +218,6 @@ private:
     uint32_t effect_loopcount = 0;
     float effect_position = 0.0;
 
-};  // class MC_Animation
+};  // class MyAnimation
 
-#endif  // MC_Animation_H_
+#endif  // MyAnimation_H_

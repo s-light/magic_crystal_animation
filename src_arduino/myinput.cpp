@@ -51,59 +51,72 @@ SOFTWARE.
 
 // include own headerfile
 // NOLINTNEXTLINE(build/include)
-#include "./mc_input.h"
+#include "./myinput.h"
 
-// include Core Arduino functionality
-#include <Arduino.h>
-
-#include <slight_DebugMenu.h>
-
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include "Adafruit_TSL2591.h"
-
-#include <slight_ButtonInput.h>
+// // include Core Arduino functionality
+// #include <Arduino.h>
+//
+// #include <slight_DebugMenu.h>
+//
+// #include <Wire.h>
+// #include <Adafruit_Sensor.h>
+// #include "Adafruit_TSL2591.h"
+//
+// #include <slight_ButtonInput.h>
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // functions
 
-// MC_Input::MC_Input(button):
+// MyInput::MyInput(button):
 // ) {
-MC_Input::MC_Input() {
-// MC_Input::MC_Input()
-//     const slight_ButtonInput::tcbfOnEvent button_event_func
-// ): button_event_func(button_event_func) {
-// ): button_event_func(button_event_func),
-//    button_getinput_func(button_getinput) {
-    ready = false;
+
+MyInput::MyInput(
+    MyAnimation &animation
+):
+    animation(animation),
+    //       ^ '(' needed. its a bug in gcc..
+    // https://stackoverflow.com/questions/10509603/why-cant-i-initialize-a-reference-in-an-initializer-list-with-uniform-initializ
+    ready{false}
+// NOLINTNEXTLINE(whitespace/braces)
+{
+    // nothing to do right now..
 }
 
-MC_Input::~MC_Input() {
+MyInput::~MyInput() {
     end();
 }
 
-void MC_Input::begin(Stream &out) {
+
+void MyInput::begin(Stream &out) {
     // clean up..
     end();
     // start up...
     if (ready == false) {
         // setup
+        out.println("SettingsUI begin:");
+        // sleepmode_init(out);
+        out.println("  board_dotstar");
+        board_dotstar.begin();
+        board_dotstar.setPixelColor(0, board_dotstar_active_color);
+        board_dotstar.show();
         light_init(out);
         button_init(out);
-        // enable
+        // out.println("  myencoder.begin");
+        // myencoder.begin(funcISR);
+        out.println("done.");
         ready = true;
-        out.println("MC_Input.begin ready = true");
+        out.println("MyInput.begin ready = true");
     }
 }
 
-void MC_Input::end() {
+void MyInput::end() {
     if (ready) {
         // nothing to do..
     }
 }
 
-void MC_Input::update() {
+void MyInput::update() {
     if (ready) {
         // do it :-)
         light_update();
@@ -120,12 +133,12 @@ void MC_Input::update() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // menu
 
-void MC_Input::menu__test_xxx(Print &out) {
+void MyInput::menu__test_xxx(Print &out) {
     out.println(F("TODO"));
     out.println();
 }
 
-void MC_Input::menu__set_yyy(Print &out, char *command) {
+void MyInput::menu__set_yyy(Print &out, char *command) {
     out.println(F("Set yyy "));
     out.println(F("TODO"));
 
@@ -152,7 +165,7 @@ void MC_Input::menu__set_yyy(Print &out, char *command) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ambientlight sensor
 
-void MC_Input::light_init(Stream &out) {
+void MyInput::light_init(Stream &out) {
     out.println(F("setup ambientlight sensor:"));
     out.println(F("TODO"));
     // TODO(s-light): implement
@@ -166,14 +179,14 @@ void MC_Input::light_init(Stream &out) {
     out.println(F("  finished."));
 }
 
-void MC_Input::light_update() {
+void MyInput::light_update() {
     // TODO(s-light): implement
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // button
 
-void MC_Input::button_init(Stream &out) {
+void MyInput::button_init(Stream &out) {
     out.println(F("setup button input:"));
     out.println(F("  set pinMode INPUT_PULLUP"));
     pinMode(mybutton.pin, INPUT_PULLUP);
@@ -185,12 +198,12 @@ void MC_Input::button_init(Stream &out) {
 }
 
 
-boolean MC_Input::mybutton_get_input(slight_ButtonInput *instance) {
+boolean MyInput::mybutton_get_input(slight_ButtonInput *instance) {
     // read input + invert: button closes to GND.
     return !digitalRead((*instance).pin);
 }
 
-void MC_Input::mybutton_event(slight_ButtonInput *instance) {
+void MyInput::mybutton_event(slight_ButtonInput *instance) {
     // Serial.print(F("instance:"));
     // Serial.print((*instance).id);
     // Serial.print(F(" - event: "));

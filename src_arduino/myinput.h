@@ -55,18 +55,23 @@ SOFTWARE.
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_TSL2591.h"
+#include <Adafruit_DotStar.h>
 
 #include <slight_ButtonInput.h>
 
+#include "./animation.h"
 
-class MC_Input {
+
+class MyInput {
  public:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // constructor
 
-    MC_Input();
-    // MC_Input(const slight_ButtonInput::tcbfOnEvent button_event);
-    ~MC_Input();
+    MyInput(
+        MyAnimation &animation
+    );
+    // MyInput(const slight_ButtonInput::tcbfOnEvent button_event);
+    ~MyInput();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic library api
@@ -76,11 +81,12 @@ class MC_Input {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // CONST
-    static const uint8_t BUTTON_PIN = A4;
-
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // attributes & objects
+
+    // OnBoardDotstar
+    Adafruit_DotStar board_dotstar = Adafruit_DotStar(1, 8, 6, DOTSTAR_BGR);
 
     // slight_ButtonInput mybutton;
     boolean mybutton_get_input(slight_ButtonInput *instance);
@@ -90,11 +96,11 @@ class MC_Input {
         // uint8_t id_new
         1,
         // uint8_t pin_new,
-        A2,
+        A4,
         // tCallbackFunctionGetInput callbackGetInput_new,
-        std::bind(&MC_Input::mybutton_get_input, this, std::placeholders::_1),
+        std::bind(&MyInput::mybutton_get_input, this, std::placeholders::_1),
         // tCallbackFunction callbackOnEvent_new,
-        std::bind(&MC_Input::mybutton_event, this, std::placeholders::_1),
+        std::bind(&MyInput::mybutton_event, this, std::placeholders::_1),
         // const uint16_t duration_debounce_new = 20,
         10,
         // const uint16_t duration_holddown_new = 1000,
@@ -126,8 +132,7 @@ class MC_Input {
     // helper
 
  private:
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // private functions
+    MyAnimation &animation;
 
     // ambientlight sensor
     void light_init(Stream &out);
@@ -145,6 +150,12 @@ class MC_Input {
     uint32_t light_loopcount = 0;
     float effect_position = 0.0;
 
-};  // class MC_Input
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // power modes
+    uint32_t board_dotstar_standby_color = Adafruit_DotStar::Color(0, 0, 10);
+    uint32_t board_dotstar_wait_color = Adafruit_DotStar::Color(100, 100, 0);
+    uint32_t board_dotstar_active_color = Adafruit_DotStar::Color(0, 40, 0);
+
+};  // class MyInput
 
 #endif  // SRC_ARDUINO_MC_INPUT_H_
