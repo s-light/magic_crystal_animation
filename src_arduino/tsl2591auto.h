@@ -57,15 +57,22 @@ public:
     void end();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // helper
+    // objects
+    Adafruit_TSL2591 tsl = Adafruit_TSL2591(42);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // configurations
-    float hue_list[3] = {
-        0.55,
-        0.35,
-        0.75,
-    };
+    // custom tls functions
+
+    void tsl_write8(uint8_t reg);
+    void tsl_write8(uint8_t reg, uint8_t value);
+    uint16_t tsl_read16(uint8_t reg);
+    uint8_t tsl_read8(uint8_t reg);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // helper
+    void tsl_print_details(Print &out);
+
+
 
 private:
     bool ready;

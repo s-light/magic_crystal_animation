@@ -44,7 +44,7 @@ SOFTWARE.
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// functions
+// main api
 
 slight_TSL2591Auto::slight_TSL2591Auto() {
     ready = false;
@@ -60,9 +60,35 @@ void slight_TSL2591Auto::begin(Stream &out) {
     // start up...
     if (ready == false) {
         // setup
+        if (tsl.begin()) {
+            out.println(F("found TSL2591 sensor"));
 
-        // enable
-        ready = true;
+            // 1x gain (bright light)
+            // tsl.setGain(TSL2591_GAIN_LOW);
+            // 25x gain
+            tsl.setGain(TSL2591_GAIN_MED);
+            // 428x gain
+            // tsl.setGain(TSL2591_GAIN_HIGH);
+
+            // shortest integration time for bright light
+            // longest integration time for low light
+            // tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);
+            // tsl.setTiming(TSL2591_INTEGRATIONTIME_200MS);
+            tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+            // tsl.setTiming(TSL2591_INTEGRATIONTIME_400MS);
+            // tsl.setTiming(TSL2591_INTEGRATIONTIME_500MS);
+            // tsl.setTiming(TSL2591_INTEGRATIONTIME_600MS);
+
+            tsl_print_details(out);
+
+            tsl.enable();
+
+            // enable
+            ready = true;
+        } else {
+            out.println(F("no sensor found ... check your wiring?"));
+            ready = false;
+        }
     }
 }
 
@@ -78,6 +104,86 @@ void slight_TSL2591Auto::update() {
     }
 }
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// custom tsl functions
+
+uint8_t slight_TSL2591Auto::tsl_read8(uint8_t reg) {
+    uint8_t x;
+
+    Wire.beginTransmission(TSL2591_ADDR);
+    Wire.write(reg);
+    Wire.endTransmission();
+
+    Wire.requestFrom(TSL2591_ADDR, 1);
+    x = Wire.read();
+
+    return x;
+}
+
+uint16_t slight_TSL2591Auto::tsl_read16(uint8_t reg) {
+    uint16_t x;
+    uint16_t t;
+
+    Wire.beginTransmission(TSL2591_ADDR);
+    Wire.write(reg);
+    Wire.endTransmission();
+
+    Wire.requestFrom(TSL2591_ADDR, 2);
+    t = Wire.read();
+    x = Wire.read();
+
+    x <<= 8;
+    x |= t;
+    return x;
+}
+
+void slight_TSL2591Auto::tsl_write8(uint8_t reg, uint8_t value) {
+    Wire.beginTransmission(TSL2591_ADDR);
+    Wire.write(reg);
+    Wire.write(value);
+    Wire.endTransmission();
+}
+
+void slight_TSL2591Auto::tsl_write8(uint8_t reg) {
+    Wire.beginTransmission(TSL2591_ADDR);
+    Wire.write(reg);
+    Wire.endTransmission();
+}
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// helper
+
+void slight_TSL2591Auto::tsl_print_details(Print &out) {
+    sensor_t sensor;
+    tsl.getSensor(&sensor);
+    out.println(F("------------------------------------"));
+    out.print(F("Sensor:     "));
+    out.println(sensor.name);
+    out.print(F("Driver Ver: "));
+    out.println(sensor.version);
+    out.print(F("Unique ID:  "));
+    out.println(sensor.sensor_id);
+    out.print(F("Max Value:  "));
+    out.print(sensor.max_value);
+    out.println(F(" lux"));
+    out.print(F("Min Value:  "));
+    out.print(sensor.min_value);
+    out.println(F(" lux"));
+    out.print(F("Resolution: "));
+    out.print(sensor.resolution, 4);
+    out.println(F(" lux"));
+    out.println(F("------------------------------------"));
+    out.print(F("Gain:         "));
+    tsl.printGain(out);
+    out.println();
+    out.print(F("Timing:       "));
+    out.print(tsl.getTimingInMS());
+    out.println(" ms");
+    out.println(F("------------------------------------"));
+    out.println(F(""));
+}
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
