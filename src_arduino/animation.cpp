@@ -333,8 +333,8 @@ void MyAnimation::gsclock_init(Print &out) {
     out.println(F("init gsclock:")); {
         out.println(F("  init gsclock timer."));
         setup_GenericClock7();
-        // setup_D9_10MHz();
-        setup_D2_10MHz();
+        setup_D9_10MHz();
+        // setup_D2_10MHz();
         // out.println(F("  set gsclock to 3MHz."));
         // gsclock_set_frequency_MHz(3.0);
         out.println(F("  set gsclock to 30MHz."));
@@ -566,16 +566,16 @@ float MyAnimation::gsclock_set_frequency_MHz(float frequency_MHz) {
     uint8_t period_reg = 29;
     float req_raw = ((60 / 2) / frequency_MHz) -1;
     period_reg = static_cast<int>(req_raw);
-    // set_D9_period_reg(period_reg);
-    set_D2_period_reg(period_reg);
+    set_D9_period_reg(period_reg);
+    // set_D2_period_reg(period_reg);
     // calculate actual used frequency
     frequency_MHz_result = (60.0 / 2) / (period_reg + 1);
     return frequency_MHz_result;
 }
 
 float MyAnimation::gsclock_get_frequency_MHz() {
-    // uint8_t period_reg = get_D9_period_reg();
-    uint8_t period_reg = get_D2_period_reg();
+    uint8_t period_reg = get_D9_period_reg();
+    // uint8_t period_reg = get_D2_period_reg();
     float frequency_MHz_result = (60.0 / 2) / (period_reg + 1);
     return frequency_MHz_result;
 }

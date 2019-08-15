@@ -121,7 +121,7 @@ public:
     //     uint8_t sin_pin = MISO
     // );
     // use default pins
-    slight_TLC5957 tlc = slight_TLC5957(MATRIX_PIXEL_COUNT);
+    slight_TLC5957 tlc = slight_TLC5957(MATRIX_PIXEL_COUNT, 7);
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
