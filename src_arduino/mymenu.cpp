@@ -367,6 +367,9 @@ void MyMenu::menu__print_help(Print &out) {
     out.println(F("\t 'B': print Buffer 'B'"));
     out.println(F("\t 'F': print buffer_fc 'F'"));
     out.println();
+    out.println(F("\t 'A': print ambient light sensor 'A'"));
+    out.println(F("\t 'a': print ambient light sensor LUX value 'a'"));
+    out.println();
     out.println(F("__________________________________________________"));
 }
 
@@ -491,6 +494,16 @@ void MyMenu::handleMenu_Main(slight_DebugMenu *instance) {
             out.println(F("Print buffer_fc:"));
             animation.tlc.print_buffer_fc(out);
             out.println();
+        } break;
+        case 'A': {
+            out.println(F("Print ambient light sensor:"));
+            myinput.als.print_status(out);
+            out.println();
+        } break;
+        case 'a': {
+            out.println(F("Print ambient light sensor - smoothed value:"));
+            out.print(myinput.als.value_lux, 4);
+            out.println(" LUX");
         } break;
         //---------------------------------------------------------------------
         default: {

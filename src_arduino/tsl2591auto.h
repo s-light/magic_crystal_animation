@@ -60,6 +60,12 @@ public:
     // objects
     Adafruit_TSL2591 tsl = Adafruit_TSL2591(42);
 
+    // config
+    void configure_sensor(Print &out);
+
+    // handling
+    void read_sensor(void);
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // custom tls functions
 
@@ -71,11 +77,16 @@ public:
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
     void tsl_print_details(Print &out);
+    void print_status(Print &out);
+    // uint32_t last_action = 0;
 
-
-
+    double value_lux = 0.0;
 private:
     bool ready;
+
+    static const uint8_t value_filter_count = 10;
+    double value_filter[value_filter_count];
+    uint8_t value_filter_index = 0;
 
 };  // class slight_TSL2591Auto
 
