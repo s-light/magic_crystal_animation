@@ -162,9 +162,16 @@ public:
     bool animation_run = true;
 
     uint16_t effect_duration = 30 * 1000; //ms
-    float hue = 0.55;
-    float contrast = 1.4;
-    float brightness = 0.3;
+
+    // lounge blue - night
+    // float hue = 0.7;
+    // float contrast = 1.5;
+    // float brightness = 0.01;
+
+    // forest green - daylight
+    float hue = 0.35;
+    float contrast = 2.0;
+    float brightness = 0.4;
 
     // const float PI = 3.141592;
     // is already defined by arduino or some other defaults...
