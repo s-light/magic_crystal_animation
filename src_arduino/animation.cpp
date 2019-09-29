@@ -781,7 +781,7 @@ CHSV MyAnimation::effect__plasma(
         -1.0, 1.0,
         // self._hue_min, self._hue_max
         // 0.0, 0.08
-        hue - 0.05, hue + 0.05);
+        hue - 0.05, hue + 0.2);
     float pixel_saturation = map_range(
         xy_value,
         -1.0, 1.0,
