@@ -13,9 +13,11 @@ i try and keep theme functional similar.
 
 you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
 <video
-src="http://s-light.eu/video/VID_20190422_190246.webm"
-style="max-width:100%; max-height:100vh;"
-controls="" loop=""></video>
+    src="http://s-light.eu/video/VID_20190422_190246.webm"
+    style="max-width:100%; max-height:100vh;"
+    controls=""
+    loop="">
+</video>
 
 
 
@@ -35,3 +37,5 @@ Controller: Adafruit ItsyBitsy M4
 
 [LEDBoard_4x4_HD](https://github.com/s-light/LEDBoard_4x4_HD)  
 with controller TLC5957
+
+ambient-light sensor: [TSL2591](https://github.com/adafruit/Adafruit_TSL2591_Library)
