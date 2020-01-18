@@ -1,3 +1,6 @@
+<!--lint disable list-item-indent-->
+<!--lint disable list-item-bullet-indent-->
+
 # magic_crystal_animation
 animation firmware for [magic_crystal](https://github.com/s-light/magic_crystal)
 
@@ -8,8 +11,8 @@ there are two versions:
 - Arduino [src_arduino/](src_arduino/)
 
 the CP version is working fine but slow.  
-the C++ version is fast / smooth :-)  
-i try and keep theme functional similar.
+that is the reason i ported this to Arduino / C++ -
+this is really fast / smooth (~120fps) :-)  
 
 you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
 <video
