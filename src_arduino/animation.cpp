@@ -731,14 +731,14 @@ void MyAnimation::calculate_effect_position() {
 
 
 void MyAnimation::effect__pixel_checker() {
-    uint8_t step = map_range_01_to__uint8(
+    uint8_t step = map_range_01_to(
         effect_position, 0, MATRIX_PIXEL_COUNT);
     tlc.set_pixel_all_16bit_value(0, 0, 0);
     tlc.set_pixel_16bit_value(step, 0, 0, 500);
 }
 
 void MyAnimation::effect__line() {
-    uint8_t step = map_range_01_to__uint8(effect_position, 0, MATRIX_COL_COUNT);
+    uint8_t step = map_range_01_to(effect_position, 0, MATRIX_COL_COUNT);
     tlc.set_pixel_all_16bit_value(0, 0, 0);
     for (size_t row_index = 0; row_index < MATRIX_ROW_COUNT; row_index++) {
         tlc.set_pixel_16bit_value(pmap[row_index][step], 0, 0, 500);
