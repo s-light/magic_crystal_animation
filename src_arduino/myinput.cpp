@@ -228,6 +228,7 @@ void MyInput::als_handle_lux_change(Print &out) {
         out.println();
         if (als_sets_brightness) {
             animation.brightness = als_brightness_automatic;
+            // TODO(s-light): implement fading
         }
         als.lux_filtered_changed_clear();
     }

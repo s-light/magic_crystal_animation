@@ -37,6 +37,8 @@ options:
 - contrast
 - brightness
 
+the animation brightness is controlled by the TSL2591 ambient light sensor.
+the mapping between incoming lux values and brightness [is hardcoded](src_arduino/myinput.h#L142)
 
 ## hardware
 
