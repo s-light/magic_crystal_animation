@@ -14,6 +14,10 @@ the CP version is working fine but slow.
 that is the reason i ported this to Arduino / C++ -
 this is really fast / smooth (~120fps) :-)  
 
+for the arduino sketch you need a special version of the
+[TSL2591 library](https://github.com/s-light/Adafruit_TSL2591_Library/tree/auto_sensitivity).
+(hopefully this gets mereged at some point ;-) )
+
 you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
 <video
     src="http://s-light.eu/video/VID_20190422_190246.webm"
