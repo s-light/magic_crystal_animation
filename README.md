@@ -16,7 +16,7 @@ this is really fast / smooth (~120fps) :-)
 
 for the arduino sketch you need a special version of the
 [TSL2591 library](https://github.com/s-light/Adafruit_TSL2591_Library/tree/auto_sensitivity).
-(hopefully this gets mereged at some point ;-) )
+(hopefully this gets merged at some point ;-) )
 
 you can find a video at [this blog post](http://blog.s-light.eu/my-magic-crystal-is-alive/)
 <video

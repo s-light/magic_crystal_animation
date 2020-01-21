@@ -374,6 +374,7 @@ void MyMenu::menu__print_help(Print &out) {
     out.print(F(" | "));
     out.print(myinput.get_als_brightness_automatic(), 5);
     out.println(F(")"));
+    out.println(F("\t 'q': test light_map 'q1.0"));
     out.println();
     out.println(F("__________________________________________________"));
 }
@@ -514,6 +515,15 @@ void MyMenu::handleMenu_Main(slight_DebugMenu *instance) {
         case 'B': {
             out.println(F("toggle als_sets_brightness:"));
             myinput.als_sets_brightness = !myinput.als_sets_brightness;
+        } break;
+        case 'q': {
+            out.println(F("test light_map:"));
+            uint8_t command_offset = 1;
+            float value = atof(&command[command_offset]);
+            out.print(value, 5);
+            out.print(" -> ");
+            out.print(myinput.light_map.mapit(value), 5);
+            out.println();
         } break;
         //---------------------------------------------------------------------
         default: {

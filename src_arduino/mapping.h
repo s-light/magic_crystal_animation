@@ -96,16 +96,8 @@ T3 map_range(T1 x, T2 in_min, T2 in_max, T3 out_min, T3 out_max) {
 }
 
 template<class T1>
-T1 map_range_clamped__double(
+T1 map_range_clamped(
     T1 x, T1 in_min, T1 in_max, T1 out_min, T1 out_max
-) {
-    // x = std::clamp(x, in_min, in_max);  // C++17
-    x = clamp(x, in_min, in_max);
-    return map_range(x, in_min, in_max, out_min, out_max);
-}
-
-double map_range_clamped__double(
-    double x, double in_min, double in_max, double out_min, double out_max
 ) {
     // x = std::clamp(x, in_min, in_max);  // C++17
     x = clamp(x, in_min, in_max);
@@ -214,7 +206,7 @@ class MultiMap {
         }
 
         // interpolate in the right segment for the rest
-        return map(val, in[pos-1], in[pos], out[pos-1], out[pos]);
+        return map_range(val, in[pos-1], in[pos], out[pos-1], out[pos]);
     }
  private:
     // std:array<T, N> in;

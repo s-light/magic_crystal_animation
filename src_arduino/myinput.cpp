@@ -213,15 +213,19 @@ void MyInput::als_handle_lux_change(Print &out) {
         out.print("update: ");
         out.print(als.get_lux_filtered(), 4);
         out.print("LUX");
-        out.println();
+        // out.println();
 
-        als_brightness_automatic = map_range_clamped__double(
-            als.get_lux_filtered(),
-            // 0.0, 88000.0,
-            0.0001, 2000.0,
-            0.0005, 1.0);
-            // 0.00002, 1.0);
-        // TODO(s-light): implement multi-map
+        // als_brightness_automatic = map_range_clamped__double(
+        //     als.get_lux_filtered(),
+        //     // 0.0, 88000.0,
+        //     0.0001, 2000.0,
+        //     0.0005, 1.0);
+        //     // 0.00002, 1.0);
+
+        als_brightness_automatic = light_map.mapit(als.get_lux_filtered());
+        out.print(" -> ");
+        out.print(als_brightness_automatic, 5);
+        out.println();
         if (als_sets_brightness) {
             animation.brightness = als_brightness_automatic;
         }
@@ -351,23 +355,6 @@ void MyInput::print_runtime(Print &out) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // helper
 
-// template <typename T>
-// T myclamp(const T& n, const T& lower, const T& upper) {
-//     return std::max(lower, std::min(n, upper));
-// }
-
-double MyInput::clamp__double(double n, double lower, double upper) {
-    return std::max(lower, std::min(n, upper));
-}
-
-double MyInput::map_range_clamped__double(
-    double x, double in_min, double in_max, double out_min, double out_max
-) {
-    // x = std::clamp(x, in_min, in_max); //C++17
-    // x = myclamp(x, in_min, in_max);
-    x = clamp__double(x, in_min, in_max);
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // THE END

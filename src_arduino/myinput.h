@@ -60,6 +60,7 @@ SOFTWARE.
 #include <slight_TSL2591AutoSensitivity.h>
 
 #include "./animation.h"
+#include "./mapping.h"
 
 
 class MyInput {
@@ -134,33 +135,35 @@ class MyInput {
     uint16_t filter_duration = 20 * 1000;  // ms
     float light_event_threshold = 0.1;
 
-    // duration mapping:
-    // ms               = step_size (factor)
-    //      0..    500    =     1 (0ms - 500ms = 1ms)
-    //    501..   1000    =    10 (500ms - 1s = 10ms)
-    //   1001..  10000    =   100 (1s - 10s = 100ms)
-    //  10001..  60000    =  1000 (10s - 1min = 1s)
-    //  60001.. 300000    = 10000 (1min - 5min = 10s)
-    // 300001..1800000    = 60000 (5min - 30min = 1min)
-    // MultiMap<double, 3> light_map{
-    //     std::array<double, 3>{
-    //              0,     500,
-    //            501,    1000,
-    //           1001,   10000,
-    //     },
-    //     std::array<double, 3>{
-    //              1,       1,
-    //             10,      10,
-    //            100,     100,
-    //     }
-    // };
+    // map ambient lux to animation.brightness
+    static const size_t light_map_count = 7;
+    MultiMap<double, light_map_count> light_map{
+        // als lux
+        std::array<double, light_map_count>{
+            0.0001,
+            0.0100,
+            0.1000,
+            1.5000,
+
+            15.000,
+            200.00,
+            10000.0,
+        },
+        // animation.brightness
+        std::array<double, light_map_count>{
+            0.00005,
+            0.0050,
+            0.0500,
+            0.1000,
+
+            0.2000,
+            0.5000,
+            0.8000,
+        }
+    };
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
-    static double clamp__double(double n, double lower, double upper);
-    static double map_range_clamped__double(
-        double x, double in_min, double in_max, double out_min, double out_max
-    );
 
  private:
     MyAnimation &animation;
