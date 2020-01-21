@@ -173,10 +173,16 @@ void MyInput::als_setup(Print &out) {
     if (als.begin(out)) {
         out.println(F("found TSL2591 sensor"));
         out.println(F("------------------------------------------"));
+        als.tsl.setConfig(&als.sens_conf[0]);
+        out.println(F("------------------------------------------"));
         als.sensor_print_details(out);
         out.println(F("------------------------------------------"));
         als.tsl.printConfig(out);
         out.println(F("------------------------------------------"));
+        for (size_t i = 0; i < 10; i++) {
+            als.update();
+            // delay(110);
+        }
     } else {
         out.println("No sensor found. → please check your wiring..");
     }
@@ -212,8 +218,10 @@ void MyInput::als_handle_lux_change(Print &out) {
         animation.brightness = map_range_clamped__double(
             als.get_lux_filtered(),
             // 0.0, 88000.0,
-            0.0, 10000.0,
-            0.00002, 1.0);
+            0.0001, 2000.0,
+            0.0005, 1.0);
+            // 0.00002, 1.0);
+        // TODO(s-light): implement multi-map
         als.lux_filtered_changed_clear();
     }
 }

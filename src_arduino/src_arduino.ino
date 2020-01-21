@@ -152,11 +152,17 @@ void setup() {
     // Wait for Serial Connection to be Opend from Host or
     // timeout after 6second
     uint32_t timeStamp_Start = millis();
-    while( (! Serial) && ( (millis() - timeStamp_Start) < 2000 ) ) {
+    while( (! Serial) && ( (millis() - timeStamp_Start) < 3000 ) ) {
         // nothing to do
+        delay(1);
     }
 
     Serial.println();
+    Serial.println();
+    Serial.println();
+    Serial.println();
+    Serial.println();
+    sketchinfo_print(Serial);
     Serial.println();
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -167,8 +173,8 @@ void setup() {
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // go
-    Serial.println(F("wait 1s."));
-    delay(1000);
+    Serial.println(F("wait 0.1s."));
+    delay(100);
     Serial.println(F("Loop:"));
 
 }

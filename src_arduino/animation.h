@@ -171,7 +171,7 @@ public:
     // forest green - daylight
     float hue = 0.36;
     float contrast = 1.70;
-    float brightness = 0.1;
+    float brightness = 0.001;
 
     // const float PI = 3.141592;
     // is already defined by arduino or some other defaults...
