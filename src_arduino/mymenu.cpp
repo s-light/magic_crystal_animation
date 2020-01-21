@@ -364,11 +364,16 @@ void MyMenu::menu__print_help(Print &out) {
     out.println(F("\t 'P': set all pixel 'P65535'"));
     out.println(F("\t 'z': set all pixel to black 'b'"));
     out.println(F("\t 'Z': set all pixel to 21845 'z'"));
-    out.println(F("\t 'B': print Buffer 'B'"));
-    out.println(F("\t 'F': print buffer_fc 'F'"));
+    // out.println(F("\t 'B': print Buffer 'B'"));
+    // out.println(F("\t 'F': print buffer_fc 'F'"));
     out.println();
     out.println(F("\t 'a': print ambient light sensor 'a'"));
     out.println(F("\t 'A': toggle als_debugout_enabled 'A'"));
+    out.print(F("\t 'B': toggle als_sets_brightness 'B' ("));
+    out.print(myinput.als_sets_brightness);
+    out.print(F(" | "));
+    out.print(myinput.get_als_brightness_automatic(), 5);
+    out.println(F(")"));
     out.println();
     out.println(F("__________________________________________________"));
 }
@@ -485,16 +490,16 @@ void MyMenu::handleMenu_Main(slight_DebugMenu *instance) {
             animation.tlc.set_pixel_all_16bit_value(21845, 21845, 21845);
             out.println();
         } break;
-        case 'B': {
-            out.println(F("Print Buffer:"));
-            animation.print_tlc_buffer(out);
-            out.println();
-        } break;
-        case 'F': {
-            out.println(F("Print buffer_fc:"));
-            animation.tlc.print_buffer_fc(out);
-            out.println();
-        } break;
+        // case 'B': {
+        //     out.println(F("Print Buffer:"));
+        //     animation.print_tlc_buffer(out);
+        //     out.println();
+        // } break;
+        // case 'F': {
+        //     out.println(F("Print buffer_fc:"));
+        //     animation.tlc.print_buffer_fc(out);
+        //     out.println();
+        // } break;
         //---------------------------------------------------------------------
         case 'a': {
             out.println(F("Print ambient light sensor:"));
@@ -505,6 +510,10 @@ void MyMenu::handleMenu_Main(slight_DebugMenu *instance) {
         case 'A': {
             out.println(F("toggle als_debugout_enabled:"));
             myinput.als_debugout_enabled = !myinput.als_debugout_enabled;
+        } break;
+        case 'B': {
+            out.println(F("toggle als_sets_brightness:"));
+            myinput.als_sets_brightness = !myinput.als_sets_brightness;
         } break;
         //---------------------------------------------------------------------
         default: {

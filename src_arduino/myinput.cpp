@@ -215,13 +215,16 @@ void MyInput::als_handle_lux_change(Print &out) {
         out.print("LUX");
         out.println();
 
-        animation.brightness = map_range_clamped__double(
+        als_brightness_automatic = map_range_clamped__double(
             als.get_lux_filtered(),
             // 0.0, 88000.0,
             0.0001, 2000.0,
             0.0005, 1.0);
             // 0.00002, 1.0);
         // TODO(s-light): implement multi-map
+        if (als_sets_brightness) {
+            animation.brightness = als_brightness_automatic;
+        }
         als.lux_filtered_changed_clear();
     }
 }
@@ -268,6 +271,10 @@ void MyInput::als_debugout_sens_conf_change(Print &out) {
     als.tsl.printConfig(out);
     out.println();
     out.println("******************************************");
+}
+
+double MyInput::get_als_brightness_automatic(void) {
+    return als_brightness_automatic;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

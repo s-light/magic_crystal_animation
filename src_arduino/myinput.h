@@ -115,6 +115,7 @@ class MyInput {
     slight_TSL2591AutoSensitivity als = slight_TSL2591AutoSensitivity();
     void als_debugout(Print &out);
     bool als_debugout_enabled = false;
+    double get_als_brightness_automatic(void);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // public functions
@@ -128,6 +129,7 @@ class MyInput {
     // configurations
 
     bool ambientlight_run = true;
+    bool als_sets_brightness = false;
 
     uint16_t filter_duration = 20 * 1000;  // ms
     float light_event_threshold = 0.1;
@@ -170,6 +172,7 @@ class MyInput {
     void als_handle_sens_conf_change(Print &out);
     void als_handle_lux_change(Print &out);
     void als_debugout_sens_conf_change(Print &out);
+    double als_brightness_automatic = 0.0001;
 
     // // button input
     void button_init(Stream &out);
