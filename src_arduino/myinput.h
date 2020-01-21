@@ -56,8 +56,9 @@ SOFTWARE.
 
 #include <slight_ButtonInput.h>
 
+#include <slight_TSL2591AutoSensitivity.h>
+
 #include "./animation.h"
-#include "./tsl2591auto.h"
 
 
 class MyInput {
@@ -109,7 +110,8 @@ class MyInput {
         250
     );
 
-    slight_TSL2591Auto als = slight_TSL2591Auto();
+    // Ambient Light Sensor
+    slight_TSL2591AutoSensitivity als = slight_TSL2591AutoSensitivity();
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,10 +137,18 @@ class MyInput {
     MyAnimation &animation;
 
     // ambientlight sensor
-    void light_update();
+    uint32_t als_debugout_timeStamp = 0;
+    void als_setup(Print &out);
+    void als_update();
+    void als_handle_sens_conf_change(Print &out);
+    void als_debugout(Print &out);
+    void als_debugout_sens_conf_change(Print &out);
 
     // // button input
     void button_init(Stream &out);
+
+    // helper
+    void print_runtime(Print &out);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // internal attributes

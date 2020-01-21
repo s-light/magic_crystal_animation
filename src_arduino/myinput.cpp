@@ -119,7 +119,7 @@ void MyInput::end() {
 void MyInput::update() {
     if (ready) {
         // do it :-)
-        light_update();
+        als_update();
         // Serial.println("button.");
         mybutton.update();
         // Serial.println("update.");
@@ -165,8 +165,75 @@ void MyInput::menu__set_yyy(Print &out, char *command) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ambientlight sensor
 
-void MyInput::light_update() {
+void MyInput::als_setup(Print &out) {
+    out.println("Ambient Light Sensor:");
+    if (als.begin(out)) {
+        out.println(F("found TSL2591 sensor"));
+        out.println(F("------------------------------------------"));
+        als.sensor_print_details(out);
+        out.println(F("------------------------------------------"));
+        als.tsl.printConfig(out);
+        out.println(F("------------------------------------------"));
+    } else {
+        out.println("No sensor found. → please check your wiring..");
+    }
+    out.println();
+}
+
+void MyInput::als_update() {
     als.update();
+    als_handle_sens_conf_change(Serial);
+    als_debugout(Serial);
+}
+
+void MyInput::als_handle_sens_conf_change(Print &out) {
+    if (als.get_sensitivity_config_changed()) {
+        als_debugout_sens_conf_change(out);
+        als.reset_sensitivity_config_changed();
+    }
+}
+
+void MyInput::als_debugout(Print &out) {
+    while ((millis() - als_debugout_timeStamp) > 1000) {
+        print_runtime(out);
+
+        out.print("  ");
+        out.print(als.value_lux, 4);
+        out.print(" lux");
+
+        out.print("    id:");
+        out.print(als.get_sensitivity_config_id());
+        out.print("    full:");
+        out.print(als.get_raw_full());
+        out.print("    raw_lux:");
+        out.print(als.get_raw_lux(), 4);
+
+        // als.print_status(out);
+        out.println();
+
+        als_debugout_timeStamp = millis();
+    }
+}
+
+void MyInput::als_debugout_sens_conf_change(Print &out) {
+    out.println("******************************************");
+    print_runtime(out);
+    out.println();
+
+    out.print("");
+    out.print("sens_conf_current_id:");
+    out.print(als.get_sensitivity_config_id());
+    out.println();
+
+    out.print("sens_conf_changed:");
+    out.print(als.get_sensitivity_config_changed());
+    out.println();
+
+    out.println();
+
+    als.tsl.printConfig(out);
+    out.println();
+    out.println("******************************************");
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,8 +295,16 @@ void MyInput::mybutton_event(slight_ButtonInput *instance) {
     }  // end switch
 }
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// helper
 
-
+void MyInput::print_runtime(Print &out) {
+    char buffer[] = "[1234567890ms]   \0";
+    snprintf(
+        buffer, sizeof(buffer),
+        "[%8lums]", millis());
+    out.print(buffer);
+}
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
