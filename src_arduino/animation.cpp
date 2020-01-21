@@ -197,7 +197,7 @@ void MyAnimation::menu__set_hue(Print &out, char *command) {
     out.print(F("Set hue "));
     uint8_t command_offset = 1;
     float value = atof(&command[command_offset]);
-    out.print(value);
+    out.print(value, 4);
     hue = value;
     out.println();
 }
@@ -206,7 +206,7 @@ void MyAnimation::menu__set_contrast(Print &out, char *command) {
     out.print(F("Set contrast "));
     uint8_t command_offset = 1;
     float value = atof(&command[command_offset]);
-    out.print(value);
+    out.print(value, 4);
     contrast = value;
     out.println();
 }
@@ -215,7 +215,7 @@ void MyAnimation::menu__set_brightness(Print &out, char *command) {
     out.print(F("Set brightness "));
     uint8_t command_offset = 1;
     float value = atof(&command[command_offset]);
-    out.print(value);
+    out.print(value, 5);
     brightness = value;
     out.println();
 }

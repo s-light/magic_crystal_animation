@@ -49,9 +49,12 @@ SOFTWARE.
 // NOLINTNEXTLINE(readability/nolint)
 // https://github.com/google/styleguide/blob/gh-pages/cpplint/cpplint.py
 
+
 // include own headerfile
 // NOLINTNEXTLINE(build/include)
 #include "./myinput.h"
+
+#include <algorithm>
 
 // // include Core Arduino functionality
 // #include <Arduino.h>
@@ -119,7 +122,7 @@ void MyInput::end() {
 void MyInput::update() {
     if (ready) {
         // do it :-)
-        als_update();
+        als_update(Serial);
         // Serial.println("button.");
         mybutton.update();
         // Serial.println("update.");
@@ -180,39 +183,57 @@ void MyInput::als_setup(Print &out) {
     out.println();
 }
 
-void MyInput::als_update() {
+void MyInput::als_update(Print &out) {
     als.update();
-    als_handle_sens_conf_change(Serial);
-    als_debugout(Serial);
+    als_handle_sens_conf_change(out);
+    if (als_debugout_enabled) {
+        if ((millis() - als_debugout_timeStamp) > 1000) {
+            als_debugout(out);
+            als_debugout_timeStamp = millis();
+        }
+    }
+    als_handle_lux_change(out);
 }
 
 void MyInput::als_handle_sens_conf_change(Print &out) {
-    if (als.get_sensitivity_config_changed()) {
+    if (als.sensitivity_config_changed()) {
         als_debugout_sens_conf_change(out);
-        als.reset_sensitivity_config_changed();
+        als.sensitivity_config_changed_clear();
+    }
+}
+
+void MyInput::als_handle_lux_change(Print &out) {
+    if (als.lux_filtered_changed()) {
+        out.print("update: ");
+        out.print(als.get_lux_filtered(), 4);
+        out.print("LUX");
+        out.println();
+
+        animation.brightness = map_range_clamped__double(
+            als.get_lux_filtered(),
+            // 0.0, 88000.0,
+            0.0, 10000.0,
+            0.00002, 1.0);
+        als.lux_filtered_changed_clear();
     }
 }
 
 void MyInput::als_debugout(Print &out) {
-    while ((millis() - als_debugout_timeStamp) > 1000) {
-        print_runtime(out);
+    print_runtime(out);
 
-        out.print("  ");
-        out.print(als.value_lux, 4);
-        out.print(" lux");
+    out.print("  ");
+    out.print(als.get_lux_filtered(), 4);
+    out.print(" lux");
 
-        out.print("    id:");
-        out.print(als.get_sensitivity_config_id());
-        out.print("    full:");
-        out.print(als.get_raw_full());
-        out.print("    raw_lux:");
-        out.print(als.get_raw_lux(), 4);
+    out.print("    id:");
+    out.print(als.get_sensitivity_config_id());
+    out.print("    full:");
+    out.print(als.get_full_raw());
+    out.print("    lux_raw:");
+    out.print(als.get_lux_raw(), 4);
 
-        // als.print_status(out);
-        out.println();
-
-        als_debugout_timeStamp = millis();
-    }
+    // als.print_status(out);
+    out.println();
 }
 
 void MyInput::als_debugout_sens_conf_change(Print &out) {
@@ -226,9 +247,14 @@ void MyInput::als_debugout_sens_conf_change(Print &out) {
     out.println();
 
     out.print("sens_conf_changed:");
-    out.print(als.get_sensitivity_config_changed());
+    out.print(als.sensitivity_config_changed());
     out.println();
-
+    out.print("full_raw:");
+    out.print(als.get_full_raw());
+    out.println();
+    out.print("lux_raw:");
+    out.print(als.get_lux_raw(), 4);
+    out.println();
     out.println();
 
     als.tsl.printConfig(out);
@@ -306,6 +332,27 @@ void MyInput::print_runtime(Print &out) {
     out.print(buffer);
 }
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// helper
+
+// template <typename T>
+// T myclamp(const T& n, const T& lower, const T& upper) {
+//     return std::max(lower, std::min(n, upper));
+// }
+
+double MyInput::clamp__double(double n, double lower, double upper) {
+    return std::max(lower, std::min(n, upper));
+}
+
+double MyInput::map_range_clamped__double(
+    double x, double in_min, double in_max, double out_min, double out_max
+) {
+    // x = std::clamp(x, in_min, in_max); //C++17
+    // x = myclamp(x, in_min, in_max);
+    x = clamp__double(x, in_min, in_max);
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // THE END

@@ -47,6 +47,7 @@ SOFTWARE.
 #ifndef SRC_ARDUINO_MC_INPUT_H_
 #define SRC_ARDUINO_MC_INPUT_H_
 
+
 // include Core Arduino functionality
 #include <Arduino.h>
 
@@ -112,7 +113,8 @@ class MyInput {
 
     // Ambient Light Sensor
     slight_TSL2591AutoSensitivity als = slight_TSL2591AutoSensitivity();
-
+    void als_debugout(Print &out);
+    bool als_debugout_enabled = false;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // public functions
@@ -132,6 +134,10 @@ class MyInput {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
+    static double clamp__double(double n, double lower, double upper);
+    static double map_range_clamped__double(
+        double x, double in_min, double in_max, double out_min, double out_max
+    );
 
  private:
     MyAnimation &animation;
@@ -139,9 +145,9 @@ class MyInput {
     // ambientlight sensor
     uint32_t als_debugout_timeStamp = 0;
     void als_setup(Print &out);
-    void als_update();
+    void als_update(Print &out);
     void als_handle_sens_conf_change(Print &out);
-    void als_debugout(Print &out);
+    void als_handle_lux_change(Print &out);
     void als_debugout_sens_conf_change(Print &out);
 
     // // button input

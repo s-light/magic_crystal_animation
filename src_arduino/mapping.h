@@ -74,6 +74,25 @@ double map_range__double(
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+// 
+// // template <typename T>
+// // T myclamp(const T& n, const T& lower, const T& upper) {
+// //     return std::max(lower, std::min(n, upper));
+// // }
+//
+// double myclamp__double(double n, double lower, double upper) {
+//   return std::max(lower, std::min(n, upper));
+// }
+//
+// double map_range_clamped__double(
+//     double x, double in_min, double in_max, double out_min, double out_max
+// ) {
+//     // x = std::clamp(x, in_min, in_max);
+//     // x = myclamp(x, in_min, in_max);
+//     x = myclamp__double(x, in_min, in_max);
+//     return map_range__double(x, in_min, in_max, out_min, out_max);
+// }
+
 
 float map_range__int2float(
     int32_t x, int32_t in_min, int32_t in_max, float out_min, float out_max

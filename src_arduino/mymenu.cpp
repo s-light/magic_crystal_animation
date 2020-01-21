@@ -344,7 +344,7 @@ void MyMenu::menu__print_help(Print &out) {
     out.print(animation.contrast, 4);
     out.println(F(")"));
     out.print(F("\t 'b': set brightness 'b1.0' ("));
-    out.print(animation.brightness, 4);
+    out.print(animation.brightness, 5);
     out.println(F(")"));
     out.println();
     // out.println(F("\t 'f': test fc 'f'"));
@@ -367,8 +367,8 @@ void MyMenu::menu__print_help(Print &out) {
     out.println(F("\t 'B': print Buffer 'B'"));
     out.println(F("\t 'F': print buffer_fc 'F'"));
     out.println();
-    out.println(F("\t 'A': print ambient light sensor 'A'"));
-    out.println(F("\t 'a': print ambient light sensor LUX value 'a'"));
+    out.println(F("\t 'a': print ambient light sensor 'a'"));
+    out.println(F("\t 'A': toggle als_debugout_enabled 'A'"));
     out.println();
     out.println(F("__________________________________________________"));
 }
@@ -495,15 +495,16 @@ void MyMenu::handleMenu_Main(slight_DebugMenu *instance) {
             animation.tlc.print_buffer_fc(out);
             out.println();
         } break;
-        case 'A': {
+        //---------------------------------------------------------------------
+        case 'a': {
             out.println(F("Print ambient light sensor:"));
-            myinput.als.print_status(out);
+            // myinput.als.print_status(out);
+            myinput.als_debugout(out);
             out.println();
         } break;
-        case 'a': {
-            out.println(F("Print ambient light sensor - smoothed value:"));
-            out.print(myinput.als.value_lux, 4);
-            out.println(" LUX");
+        case 'A': {
+            out.println(F("toggle als_debugout_enabled:"));
+            myinput.als_debugout_enabled = !myinput.als_debugout_enabled;
         } break;
         //---------------------------------------------------------------------
         default: {
