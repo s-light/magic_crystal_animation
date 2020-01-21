@@ -772,6 +772,7 @@ CHSV MyAnimation::effect__plasma(
     // moving rings
     float cx = col + 0.5 * sin(offset / 5);
     float cy = row + 0.5 * cos(offset / 3);
+    // double xy_value = sin(
     float xy_value = sin(
         sqrt(100 * (cx*cx + cy*cy) + 1)
         + offset);
@@ -828,12 +829,14 @@ void MyAnimation::effect_Matrix2D() {
     float offset = map_range_01_to(effect_position, 0.0, (PI * 30));
     for (size_t row_i = 0; row_i < MATRIX_ROW_COUNT; row_i++) {
         // normalize row
+        // float row = map_range__int2float(
         float row = map_range(
             row_i,
             0, MATRIX_ROW_COUNT-1,
             -0.5, 0.5);
         for (size_t col_i = 0; col_i < MATRIX_COL_COUNT; col_i++) {
             // normalize col
+            // float col = map_range__int2float(
             float col = map_range(
                 col_i,
                 0, MATRIX_COL_COUNT-1,

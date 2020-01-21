@@ -59,8 +59,25 @@ SOFTWARE.
 // float normalize_to_01(int32_t x, int32_t in_min, int32_t in_max);
 // float normalize_to_01(uint32_t x, uint32_t in_min, uint32_t in_max);
 
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // map_range
+
+// template<class T>
+// T map_range(T x, T in_min, T in_max, T out_min, T out_max) {
+//     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+// }
+//
+// template<class T1, class T2>
+// T2 map_range(T1 x, T1 in_min, T1 in_max, T2 out_min, T2 out_max) {
+//     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+// }
+
+// template<class T>
+// T map_range_11_to(T x, T out_min, T out_max) {
+//     return (x - -1.0) * (out_max - out_min) / (1.0 - -1.0) + out_min;
+// }
+
 
 float map_range(
     float x, float in_min, float in_max, float out_min, float out_max
@@ -102,6 +119,15 @@ float map_range__int2float(
 
 float map_range__uint2float(
     uint32_t x, uint32_t in_min, uint32_t in_max, float out_min, float out_max
+) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+
+uint32_t map_range__uint32(
+    uint32_t x,
+    uint32_t in_min, uint32_t in_max,
+    uint32_t out_min, uint32_t out_max
 ) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
@@ -164,6 +190,12 @@ uint32_t map_range_01_to__uint32(
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // normalize_to_01
+
+
+// template<class T>
+// float normalize_to_01(T x, T out_min, T out_max) {
+//     return ((x - out_min) * 1.0) / (out_max - out_min);
+// }
 
 float normalize_to_01(
     int8_t x, int8_t in_min, int8_t in_max

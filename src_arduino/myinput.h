@@ -132,6 +132,27 @@ class MyInput {
     uint16_t filter_duration = 20 * 1000;  // ms
     float light_event_threshold = 0.1;
 
+    // duration mapping:
+    // ms               = step_size (factor)
+    //      0..    500    =     1 (0ms - 500ms = 1ms)
+    //    501..   1000    =    10 (500ms - 1s = 10ms)
+    //   1001..  10000    =   100 (1s - 10s = 100ms)
+    //  10001..  60000    =  1000 (10s - 1min = 1s)
+    //  60001.. 300000    = 10000 (1min - 5min = 10s)
+    // 300001..1800000    = 60000 (5min - 30min = 1min)
+    // MultiMap<double, 3> light_map{
+    //     std::array<double, 3>{
+    //              0,     500,
+    //            501,    1000,
+    //           1001,   10000,
+    //     },
+    //     std::array<double, 3>{
+    //              1,       1,
+    //             10,      10,
+    //            100,     100,
+    //     }
+    // };
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // helper
     static double clamp__double(double n, double lower, double upper);

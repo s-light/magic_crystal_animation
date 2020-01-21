@@ -223,6 +223,7 @@ private:
     uint32_t effect_start = 0;
     uint32_t effect_end = 0;
     uint32_t effect_loopcount = 0;
+    // double effect_position = 0.0;
     float effect_position = 0.0;
 
 };  // class MyAnimation
